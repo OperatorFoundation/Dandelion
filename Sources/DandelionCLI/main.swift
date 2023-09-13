@@ -24,7 +24,7 @@ extension DandelionCLI
     struct New: ParsableCommand
     {
         @Argument(help: "The program you want to create a new setup for. Possible options are: \(Petal.backendServer), or \(Petal.backendClient)")
-        var petal: Petal
+        var program: Petal
         
         @Argument(help: "The port that the server listens on.")
         var port: Int
@@ -36,7 +36,7 @@ extension DandelionCLI
         {
             print("Creating a new Dandelion setup...")
             
-            switch petal
+            switch program
             {
                 case .backendServer:
                     print("A new backend server setup was requested.")
@@ -59,8 +59,26 @@ extension DandelionCLI
 {
     struct Run: ParsableCommand
     {
-        func run() throws {
-            print("😶 This code has not yet been implemented!")
+        @Argument(help: "The type of server you want to run. Possible options are: \(Petal.backendServer), or \(Petal.frontendServer)")
+        var program: Petal
+        
+        func run() throws
+        {
+            print("Running a Dandelion server...")
+            
+            switch program
+            {
+                case .backendServer:
+                    print("A new backend server setup was requested.")
+                    print("😶 This code has not yet been implemented!")
+                case .backendClient:
+                    print("🔺 A new backend client setup was requested. Try running a server instead!")
+                case .frontendServer:
+                    print("A new frontend server setup was requested.")
+                    print("😶 This code has not yet been implemented!")
+                case .frontendClient:
+                    print("🔺 A new frontend client setup was requested. Try running a server instead!")
+            }
         }
     }
 }
