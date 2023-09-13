@@ -1,2 +1,2 @@
 # Dandelion
- A new Pluggable Transport suite. Under construction.
+ A new Pluggable Transport suite written in Swift. Under construction.
