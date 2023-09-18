@@ -14,38 +14,47 @@ let package = Package(
             name: "Dandelion",
             targets: ["Dandelion"]),
         .library(
-            name: "DandelionFrontend",
-            targets: ["DandelionFrontend"]),
+            name: "DandelionServer",
+            targets: ["DandelionServer"]),
         .library(
-            name: "DandelionBackend",
-            targets: ["DandelionBackend"]),
+            name: "DandelionClient",
+            targets: ["DandelionClient"]),
     ],
     
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.3"),
+        .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
+        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main")
     ],
     
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Dandelion"),
+            name: "Dandelion",
+            dependencies: [
+        ]),
         .target(
-            name: "DandelionFrontend"),
+            name: "DandelionServer",
+            dependencies: [
+                "Dandelion",
+        ]),
         .target(
-            name: "DandelionBackend"),
+            name: "DandelionClient",
+            dependencies: [
+                "Dandelion",
+        ]),
         .executableTarget(
             name: "DandelionCLI",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]),
+        ]),
         .testTarget(
             name: "DandelionTests",
             dependencies: [
                 "Dandelion",
-                "DandelionFrontend",
-                "DandelionBackend",
+                "DandelionServer",
+                "DandelionClient",
                 "DandelionCLI"
-            ]),
+        ]),
     ]
 )

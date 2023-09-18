@@ -90,3 +90,5 @@ fastlane/test_output
 iOSInjectionProject/
 Package.resolved
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+Sources/DandelionClient/.DS_Store
+Sources/.DS_Store
