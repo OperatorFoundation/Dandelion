@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class DandelionBackend
+public class DandelionServer
 {
     
     

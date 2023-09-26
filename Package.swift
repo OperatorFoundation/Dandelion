@@ -23,7 +23,9 @@ let package = Package(
     
     dependencies: [
         .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
-        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main")
+        .package(url: "git@github.com:OperatorFoundation/Keychain.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/Transmission.git", branch: "main"),
     ],
     
     targets: [
@@ -37,11 +39,15 @@ let package = Package(
             name: "DandelionServer",
             dependencies: [
                 "Dandelion",
+                "Keychain",
+                "Transmission",
+                .product(name: "TransmissionNametag", package: "Nametag"),
         ]),
         .target(
             name: "DandelionClient",
             dependencies: [
                 "Dandelion",
+                "Keychain",
         ]),
         .executableTarget(
             name: "DandelionCLI",

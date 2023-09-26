@@ -7,24 +7,30 @@
 
 import Foundation
 
+import Keychain
+
 public class DandelionConfig
 {
+    static let dandelionName = "dandelion"
+    
     public struct ServerConfig: Codable
     {
         public static let serverConfigFilename = "DandelionServerConfig.json"
         
+        public let serverPublicKey: PublicKey
         public let serverAddress: String
         public let serverIP: String
         public let serverPort: UInt16
-        public var transportName = "dandelion"
+        public let transportName: String
         
         private enum CodingKeys : String, CodingKey
         {
             case serverAddress
+            case serverPublicKey
             case transportName = "transport"
         }
         
-        public init(serverAddress: String) throws
+        public init(serverAddress: String, serverPublicKey: PublicKey) throws
         {
             self.serverAddress = serverAddress
             
@@ -37,6 +43,8 @@ public class DandelionConfig
             }
             
             self.serverPort = port
+            self.transportName = DandelionConfig.dandelionName
+            self.serverPublicKey = serverPublicKey
         }
         
         public init?(from data: Data)
@@ -46,6 +54,12 @@ public class DandelionConfig
             do
             {
                 self = try decoder.decode(ServerConfig.self, from: data)
+                
+                guard transportName.lowercased() == DandelionConfig.dandelionName.lowercased() else
+                {
+                    print("Unable to create a Dandelion config, the decoded config data has a different transport name: \(transportName)")
+                    return nil
+                }
             }
             catch
             {
@@ -86,7 +100,14 @@ public class DandelionConfig
             self.serverIP = String(addressStrings[0])
             self.serverAddress = address
             self.serverPort = port
+            self.serverPublicKey = try container.decode(PublicKey.self, forKey: .serverPublicKey)
             self.transportName = try container.decode(String.self, forKey: .transportName)
+            
+            guard transportName.lowercased() == DandelionConfig.dandelionName.lowercased() else
+            {
+                print("Unable to create a Dandelion config, the decoded config data has a different transport name: \(transportName)")
+                throw DandelionConfigError.invalidJSON
+            }
         }
     }
     
@@ -97,7 +118,7 @@ public class DandelionConfig
         public let serverAddress: String
         public let serverIP: String
         public let serverPort: UInt16
-        public var transportName = "dandelion"
+        public let transportName: String
         
         private enum CodingKeys : String, CodingKey
         {
@@ -118,6 +139,7 @@ public class DandelionConfig
             }
             
             self.serverPort = port
+            self.transportName = DandelionConfig.dandelionName
         }
         
         public init?(from data: Data)
@@ -127,6 +149,12 @@ public class DandelionConfig
             do
             {
                 self = try decoder.decode(ClientConfig.self, from: data)
+                
+                guard transportName.lowercased() == DandelionConfig.dandelionName.lowercased() else
+                {
+                    print("Unable to create a Dandelion client config, the decoded config data has a different transport name: \(transportName)")
+                    return nil
+                }
             }
             catch
             {
@@ -160,7 +188,7 @@ public class DandelionConfig
             
             guard let port = UInt16(addressStrings[1]) else
             {
-                print("Error decoding Dandelion ClientConfig data: invalid server port")
+                print("Error decoding Dandelion client config data: invalid server port")
                 throw DandelionConfigError.invalidJSON
             }
             
@@ -168,25 +196,32 @@ public class DandelionConfig
             self.serverAddress = address
             self.serverPort = port
             self.transportName = try container.decode(String.self, forKey: .transportName)
+            
+            guard transportName.lowercased() == DandelionConfig.dandelionName.lowercased() else
+            {
+                print("Unable to create a Dandelion client config, the decoded config data has a different transport name: \(transportName)")
+                throw DandelionConfigError.invalidJSON
+            }
+            
         }
     }
     
-    public static func generateNewConfigPair(serverAddress: String) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
+    public static func generateNewConfigPair(serverAddress: String, serverPublicKey: PublicKey) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
     {
-        let serverConfig = try ServerConfig(serverAddress: serverAddress)
+        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPublicKey: serverPublicKey)
         let clientConfig = try ClientConfig(serverAddress: serverAddress)
         
         return (serverConfig, clientConfig)
     }
 
-    public static func createNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String) throws
+    public static func createNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String, serverPublicKey: PublicKey) throws
     {
         guard saveDirectory.hasDirectoryPath else
         {
             throw DandelionConfigError.urlIsNotDirectory
         }
 
-        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress)
+        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress, serverPublicKey: serverPublicKey)
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.withoutEscapingSlashes, .prettyPrinted]
