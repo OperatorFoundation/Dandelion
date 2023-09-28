@@ -206,9 +206,12 @@ public class DandelionConfig
         }
     }
     
-    public static func generateNewConfigPair(serverAddress: String, serverPublicKey: PublicKey) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
+    public static func generateNewConfigPair(serverAddress: String) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
     {
-        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPublicKey: serverPublicKey)
+        let privateKey = try PrivateKey(type: .P256KeyAgreement)
+        let publicKey = privateKey.publicKey
+        
+        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPublicKey: publicKey)
         let clientConfig = try ClientConfig(serverAddress: serverAddress)
         
         return (serverConfig, clientConfig)
@@ -221,7 +224,7 @@ public class DandelionConfig
             throw DandelionConfigError.urlIsNotDirectory
         }
 
-        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress, serverPublicKey: serverPublicKey)
+        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress)
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.withoutEscapingSlashes, .prettyPrinted]

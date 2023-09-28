@@ -34,6 +34,7 @@ let package = Package(
         .target(
             name: "Dandelion",
             dependencies: [
+                "Keychain",
         ]),
         .target(
             name: "DandelionServer",
