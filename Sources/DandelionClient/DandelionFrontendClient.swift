@@ -9,12 +9,12 @@ import Foundation
 
 public class DandelionFrontendClient
 {
-    func getOrGenerateKeys()
+    public func getOrGenerateKeys()
     {
         
     }
     
-    func loadTransportConfigs(from configDirectory: URL) -> Bool
+    public func loadTransportConfigs(from configDirectory: URL) -> Bool
     {
         
         return false

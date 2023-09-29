@@ -25,7 +25,7 @@ public class DandelionFrontendServer
     let listener: TransmissionListener
     let logger: Logger
     
-    init?(config: DandelionConfig.ServerConfig, logger: Logger)
+    public init?(config: DandelionConfig.ServerConfig, logger: Logger)
     {
         guard config.serverIP != "0.0.0.0" else
         {

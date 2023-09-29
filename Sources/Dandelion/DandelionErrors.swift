@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum DandelionConfigError: Error
+public enum DandelionConfigError: Error
 {
     case urlIsNotDirectory
     case failedToSaveFile(filePath: String)
