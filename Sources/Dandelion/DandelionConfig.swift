@@ -217,7 +217,7 @@ public class DandelionConfig
         return (serverConfig, clientConfig)
     }
 
-    public static func createNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String, serverPublicKey: PublicKey) throws
+    public static func createNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String) throws
     {
         guard saveDirectory.hasDirectoryPath else
         {
