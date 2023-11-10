@@ -23,8 +23,11 @@ let package = Package(
     
     dependencies: [
         .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
+        .package(url: "git@github.com:apple/swift-log.git", from: "1.5.3"),
         .package(url: "git@github.com:OperatorFoundation/Keychain.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/KeychainCli.git", branch: "main"),
         .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/ShadowSwift.git", branch: "main"),
         .package(url: "git@github.com:OperatorFoundation/Transmission.git", branch: "main"),
     ],
     
@@ -42,6 +45,7 @@ let package = Package(
                 "Dandelion",
                 "Keychain",
                 "Transmission",
+                .product(name: "Logging", package: "swift-log"),
                 .product(name: "TransmissionNametag", package: "Nametag"),
         ]),
         .target(
@@ -49,6 +53,8 @@ let package = Package(
             dependencies: [
                 "Dandelion",
                 "Keychain",
+                "ShadowSwift",
+                .product(name: "Logging", package: "swift-log")
         ]),
         .executableTarget(
             name: "DandelionCLI",
