@@ -70,6 +70,17 @@ final class DandelionTests: XCTestCase
         do
         {
             let nametagConnection = try NametagClientConnection(config: shadowConfig, keychain: keychain, logger: logger)
+            let writeSuccess = nametagConnection.network.write(string: "Hello Dandelion.")
+            
+            XCTAssert(writeSuccess)
+            
+            guard let readResult = nametagConnection.network.read(size: 15) else
+            {
+                XCTFail()
+                return
+            }
+            
+            print("Read from the nametag connection: \(readResult.string)")
         }
         catch (let error)
         {

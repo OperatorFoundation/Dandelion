@@ -7,7 +7,7 @@
 
 import Foundation
 
-import Keychain
+import KeychainCli
 
 public class DandelionConfig
 {
@@ -206,25 +206,38 @@ public class DandelionConfig
         }
     }
     
-    public static func generateNewConfigPair(serverAddress: String) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
+    /// Generates a private key and a Server/Client config pair.
+    /// This needs to be run on the machine that will eventually run the listener so that a keychain entry is in place for authenticated connections.
+    public static func generateNewConfigPair(serverAddress: String, keychainURL: URL, keychainLabel: String, overwriteKey: Bool = false) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
     {
-        let privateKey = try PrivateKey(type: .P256KeyAgreement)
-        let publicKey = privateKey.publicKey
+        guard let keychain = Keychain(baseDirectory: keychainURL) else
+        {
+            throw DandelionConfigError.failedToLoadKeychain(keychainURL: keychainURL)
+        }
+
+        guard let privateKeyKeyAgreement = keychain.generateAndSavePrivateKey(label: keychainLabel, type: KeyType.P256KeyAgreement, overwrite: overwriteKey) else
+        {
+            throw DandelionConfigError.failedToGeneratePrivateKey
+        }
         
-        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPublicKey: publicKey)
+        let publicKeyKeyAgreement = privateKeyKeyAgreement.publicKey
+        
+        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPublicKey: publicKeyKeyAgreement)
         let clientConfig = try ClientConfig(serverAddress: serverAddress)
         
         return (serverConfig, clientConfig)
     }
-
-    public static func createNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String) throws
+    
+    /// Generates a private key and a Server/Client config pair, and saves them as JSON files in the selected directory.
+    /// Note: This function or the generateNewConfigPair() function must be run on the machine that will eventually run the listener so that a keychain entry is in place for authenticated connections.
+    public static func generateNewConfigFiles(inDirectory saveDirectory: URL, serverAddress: String, keychainURL: URL, keychainLabel: String, overwriteKey: Bool = false) throws
     {
         guard saveDirectory.hasDirectoryPath else
         {
             throw DandelionConfigError.urlIsNotDirectory
         }
 
-        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress)
+        let configPair = try DandelionConfig.generateNewConfigPair(serverAddress: serverAddress, keychainURL: keychainURL, keychainLabel: keychainLabel, overwriteKey: overwriteKey)
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.withoutEscapingSlashes, .prettyPrinted]
