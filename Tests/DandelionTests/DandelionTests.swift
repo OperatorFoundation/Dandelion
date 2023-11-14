@@ -34,14 +34,6 @@ final class DandelionTests: XCTestCase
             return
         }
         
-//        // Make a Shadow connection
-//        let shadowConnectionFactory = ShadowConnectionFactory(config: shadowConfig, logger: logger)
-//        guard let shadowConnection = shadowConnectionFactory.connect(using: .tcp)
-//        else
-//        {
-//            XCTFail()
-//            return
-//        }
         
         // Use Shadow connection to make a Nametag connection
         guard let keychain = Keychain(baseDirectory: testKeychainURL) else

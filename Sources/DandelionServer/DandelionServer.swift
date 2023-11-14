@@ -54,12 +54,6 @@ public class DandelionServer
         let connection = listener.accept()
         let authenticatedConnection = try NametagServerConnection(connection, logger)
         
-        guard authenticatedConnection.publicKey == config.serverPublicKey else
-        {
-            throw DandelionServerError.invalidPublicKey
-        }
-        
-        
         return authenticatedConnection
     }
     
