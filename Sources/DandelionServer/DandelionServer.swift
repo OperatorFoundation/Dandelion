@@ -7,21 +7,16 @@
 
 import Foundation
 import Net
-
-#if os(macOS) || os(iOS)
-import os.log
-#else
 import Logging
-#endif
 
 import Dandelion
-import Transmission
-import TransmissionNametag
+import TransmissionAsync
+import TransmissionAsyncNametag
 
 public class DandelionServer
 {
     let config: DandelionConfig.ServerConfig
-    let listener: TransmissionListener
+    let listener: AsyncListener
     let logger: Logger
     
     public init?(config: DandelionConfig.ServerConfig, logger: Logger)
@@ -38,28 +33,33 @@ public class DandelionServer
             return nil
         }
         
-        guard let newListener = TransmissionListener(port: Int(config.serverPort), logger: logger) else
+        do
         {
-            logger.error("Failed to start a listener on port \(config.serverPort)")
+            let newListener = try AsyncTcpSocketListener(port:Int(config.serverPort), logger)
+            self.listener = newListener
+            self.logger = logger
+            self.config = config
+        }
+        catch (let error)
+        {
+            logger.error("Failed to start a listener on port \(config.serverPort). Error: \(error)")
             return nil
         }
         
-        self.listener = newListener
-        self.logger = logger
-        self.config = config
+        
     }
     
-    public func accept() throws -> NametagServerConnection
+    public func accept() async throws -> AsyncNametagServerConnection
     {
-        let connection = listener.accept()
-        let authenticatedConnection = try NametagServerConnection(connection, logger)
+        let connection = try await listener.accept()
+        let authenticatedConnection = try await AsyncNametagServerConnection(connection, logger)
         
         return authenticatedConnection
     }
     
-    public func close()
+    public func close() async throws
     {
-        listener.close()
+        try await listener.close()
     }
     
 }

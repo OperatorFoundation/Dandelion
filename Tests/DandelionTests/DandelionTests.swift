@@ -1,27 +1,19 @@
 import XCTest
 @testable import Dandelion
 
-#if os(macOS) || os(iOS)
-import os.log
-#else
 import Logging
-#endif
 
 import KeychainCli
 import Nametag
 import ShadowSwift
-import Transmission
-import TransmissionNametag
+import TransmissionAsync
+import TransmissionAsyncNametag
 
 final class DandelionTests: XCTestCase 
 {
-#if os(macOS) || os(iOS)
-    let logger: Logger = Logger()
-#else
     let logger: Logger = Logger(label: "Dandelion Logger")
-#endif
     
-    func testConnectToDandelionServer() throws
+    func testConnectToDandelionServer() async throws
     {
         
         // Get a shadow config
@@ -61,16 +53,11 @@ final class DandelionTests: XCTestCase
         
         do
         {
-            let nametagConnection = try NametagClientConnection(config: shadowConfig, keychain: keychain, logger: logger)
-            let writeSuccess = nametagConnection.network.write(string: "Hello Dandelion.")
-            
-            XCTAssert(writeSuccess)
-            
-            guard let readResult = nametagConnection.network.read(size: 15) else
-            {
-                XCTFail()
-                return
-            }
+            let nametagConnection = try await AsyncNametagClientConnection(config: shadowConfig, keychain: keychain, logger: logger)
+            try await nametagConnection.network.write("Hello Dandelion.")
+                        
+            let readResult = try await nametagConnection.network.readSize( 15)
+            XCTAssertNotNil(readResult)
             
             print("Read from the nametag connection: \(readResult.string)")
         }
