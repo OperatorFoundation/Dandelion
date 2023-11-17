@@ -20,6 +20,7 @@ final class DandelionTests: XCTestCase
     
     func testConnectShadowToDandelionServer() async throws
     {
+        let message = "Hello Dandelion."
         
         // Get a shadow config
         let shadowConfigURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("ShadowClientConfig.json")
@@ -64,7 +65,7 @@ final class DandelionTests: XCTestCase
             let nametagConnection = try NametagClientConnection(config: shadowConfig, keychain: keychain, logger: testLog)
             
             print("• Created a nametag connection.")
-            let wroteData = nametagConnection.network.write(string: "Hello Dandelion.")
+            let wroteData = nametagConnection.network.write(string: message)
             
             guard wroteData else
             {
@@ -79,6 +80,8 @@ final class DandelionTests: XCTestCase
             }
             
             print("Read from the nametag connection: \(readResult.string)")
+            
+            XCTAssertEqual(message, readResult.string)
         }
         catch (let error)
         {
@@ -90,6 +93,10 @@ final class DandelionTests: XCTestCase
     
     func testConnectToDandelionServer() async throws
     {
+        let serverIP = "127.0.0.1"
+        let serverPort = 5771
+        let message = "Hello Dandelion."
+        
         // Get a shadow config
         let testKeychainURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".keychainTest")
         
@@ -123,7 +130,7 @@ final class DandelionTests: XCTestCase
         do
         {
             let testLog = Logger(subsystem: "TestLogger", category: "main")
-            guard let connection = TCPConnection(host: "", port: 5771) else
+            guard let connection = TCPConnection(host: serverIP, port: serverPort) else
             {
                 XCTFail()
                 return
@@ -132,7 +139,7 @@ final class DandelionTests: XCTestCase
             let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
             
             print("• Created a nametag connection.")
-            let wroteData = nametagConnection.network.write(string: "Hello Dandelion.")
+            let wroteData = nametagConnection.network.write(string: message)
             print("• Wrote some data to the nametag/Dandelion connection.")
             
             guard wroteData else
@@ -148,6 +155,7 @@ final class DandelionTests: XCTestCase
             }
             
             print("Read from the nametag connection: \(readResult.string)")
+            XCTAssertEqual(message, readResult.string)
         }
         catch (let error)
         {
@@ -159,6 +167,11 @@ final class DandelionTests: XCTestCase
     
     func testConnectToDandelionServerTwice() async throws
     {
+        let serverIP = "127.0.0.1"
+        let serverPort = 5771
+        let message1 = "Hello"
+        let message2 = " Dandelion."
+        
         // Get a shadow config
         let testKeychainURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".keychainTest")
         
@@ -193,7 +206,7 @@ final class DandelionTests: XCTestCase
         {
             let testLog = Logger(subsystem: "TestLogger", category: "main")
             
-            guard let connection = TCPConnection(host: "", port: 5771) else
+            guard let connection = TCPConnection(host: serverIP, port: serverPort) else
             {
                 XCTFail()
                 return
@@ -202,7 +215,7 @@ final class DandelionTests: XCTestCase
             let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
             
             print("• Created a nametag connection.")
-            let wroteData = nametagConnection.network.write(string: "Hello")
+            let wroteData = nametagConnection.network.write(string: message1)
             print("• Wrote some data to the nametag/Dandelion connection.")
             
             guard wroteData else
@@ -211,20 +224,23 @@ final class DandelionTests: XCTestCase
                 return
             }
             
-//            connection.close()
-            nametagConnection.network.close()
+            connection.close()
+            
+            try await Task.sleep(for: .seconds(1))
             
             // Second connection
-            guard let connection2 = TCPConnection(host: "", port: 5771) else
+            guard let connection2 = TCPConnection(host: serverIP, port: serverPort) else
             {
                 XCTFail()
                 return
             }
             
             print("• Created a 2nd TCP connection.")
+            
+            try await Task.sleep(for: .seconds(1))
             let nametagConnection2 = try NametagClientConnection(connection, keychain, testLog)
             print("• Created a 2nd nametag connection.")
-            let wroteData2 = nametagConnection.network.write(string: " Dandelion.")
+            let wroteData2 = nametagConnection.network.write(string: message2)
             print("• Wrote some data to the nametag/Dandelion connection.")
             
             guard wroteData2 else
@@ -240,6 +256,7 @@ final class DandelionTests: XCTestCase
             }
             
             print("Read from the nametag connection: \(readResult.string)")
+            XCTAssertEqual(message1 + message2, readResult.string)
         }
         catch (let error)
         {
