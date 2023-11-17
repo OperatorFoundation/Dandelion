@@ -69,6 +69,7 @@ let package = Package(
                 "DandelionClient",
                 "DandelionCLI",
                 .product(name: "TransmissionNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
     ]
 )
