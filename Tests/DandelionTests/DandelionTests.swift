@@ -315,8 +315,11 @@ final class DandelionTests: XCTestCase
             }
             
             let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
-            
             print("• Created a nametag connection.")
+            
+            // FIXME: Handshake and first write are smooshed together, check the buffering on this
+            try await Task.sleep(for: .seconds(1))
+            
             let wroteData = nametagConnection.network.write(string: message1)
             print("• Wrote some data to the nametag/Dandelion connection.")
             
@@ -327,7 +330,7 @@ final class DandelionTests: XCTestCase
             }
             
             connection.close()
-            try await Task.sleep(for: .seconds(2))
+            try await Task.sleep(for: .seconds(10))
         }
         catch (let error)
         {
@@ -385,6 +388,9 @@ final class DandelionTests: XCTestCase
             }
             
             let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
+            
+            // FIXME: Handshake and first write are smooshed together, check the buffering on this
+            try await Task.sleep(for: .seconds(1))
             
             print("• Created a nametag connection.")
             let wroteData = nametagConnection.network.write(string: message2)
