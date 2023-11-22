@@ -16,14 +16,14 @@ import TransmissionAsyncNametag
 
 public class AsyncDandelionConnection: AsyncChannelConnection<DandelionChannel>
 {
-    public convenience init(_ keychain: Keychain, _ host: String, _ port: Int, _ logger: Logger, verbose: Bool = false) async throws
+    public convenience init(_ keychain: any KeychainProtocol, _ host: String, _ port: Int, _ logger: Logger, verbose: Bool = false) async throws
     {
         let network = try await AsyncTcpSocketConnection(host, port, logger, verbose: verbose)
 
         try await self.init(keychain, network, logger, verbose: verbose)
     }
 
-    public convenience init<T>(_ keychain: Keychain, _ connection: AsyncChannelConnection<T>, _ logger: Logger, verbose: Bool = false) async throws
+    public convenience init<T>(_ keychain: any KeychainProtocol, _ connection: AsyncChannelConnection<T>, _ logger: Logger, verbose: Bool = false) async throws
     {
         guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
         {

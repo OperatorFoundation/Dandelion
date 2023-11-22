@@ -306,30 +306,16 @@ final class DandelionTests: XCTestCase
         
         do
         {
-            let testLog = Logger(subsystem: "TestLogger", category: "main")
+            let testLog = Logger(label: "Dandelion Logger")
+            let connection = try await AsyncDandelionConnection(keychain, serverIP, serverPort, testLog, verbose: true)
             
-            guard let connection = TCPConnection(host: serverIP, port: serverPort) else
-            {
-                XCTFail()
-                return
-            }
+            print("• Created an AsyncDandelionConnection connection.")
             
-            let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
-            print("• Created a nametag connection.")
+            try await connection.write(message1.data)
+            print("• Wrote some data to the AsyncDandelionConnection connection.")
+
             
-            // FIXME: Handshake and first write are smooshed together, check the buffering on this
-//            try await Task.sleep(for: .seconds(1))
-            
-            let wroteData = nametagConnection.network.write(string: message1)
-            print("• Wrote some data to the nametag/Dandelion connection.")
-            
-            guard wroteData else
-            {
-                XCTFail()
-                return
-            }
-            
-            connection.close()
+            try await connection.close()
             try await Task.sleep(for: .seconds(10))
         }
         catch (let error)
