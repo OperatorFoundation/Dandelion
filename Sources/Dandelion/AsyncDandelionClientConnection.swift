@@ -1,5 +1,5 @@
 //
-//  AsyncDandelionConnection.swift
+//  AsyncDandelionClientConnection.swift
 //
 //
 //  Created by Dr. Brandon Wiley on 11/22/23.
@@ -14,7 +14,7 @@ import Straw
 import TransmissionAsync
 import TransmissionAsyncNametag
 
-public class AsyncDandelionConnection: AsyncChannelConnection<DandelionChannel>
+public class AsyncDandelionClientConnection: AsyncChannelConnection<DandelionClientChannel>
 {
     public convenience init(_ keychain: any KeychainProtocol, _ host: String, _ port: Int, _ logger: Logger, verbose: Bool = false) async throws
     {
@@ -47,25 +47,25 @@ public class AsyncDandelionConnection: AsyncChannelConnection<DandelionChannel>
 
     public init(_ connection: AsyncNametagClientConnection, _ logger: Logger, verbose: Bool = false)
     {
-        let channel = DandelionChannel(connection, logger: logger, verbose: verbose)
+        let channel = DandelionClientChannel(connection, logger: logger, verbose: verbose)
 
         super.init(channel, logger, verbose: verbose)
     }
 }
 
-public class DandelionChannel: Channel
+public class DandelionClientChannel: Channel
 {
-    public typealias R = DandelionReadable
-    public typealias W = DandelionWritable
+    public typealias R = DandelionClientReadable
+    public typealias W = DandelionClientWritable
 
-    public var readable: DandelionReadable
+    public var readable: DandelionClientReadable
     {
-        return DandelionReadable(self.connection, logger: self.logger, verbose: self.verbose)
+        return DandelionClientReadable(self.connection, logger: self.logger, verbose: self.verbose)
     }
 
-    public var writable: DandelionWritable
+    public var writable: DandelionClientWritable
     {
-        return DandelionWritable(self.connection, logger: self.logger, verbose: self.verbose)
+        return DandelionClientWritable(self.connection, logger: self.logger, verbose: self.verbose)
     }
 
     let connection: AsyncNametagClientConnection
@@ -88,7 +88,7 @@ public class DandelionChannel: Channel
     }
 }
 
-public class DandelionReadable: Readable
+public class DandelionClientReadable: Readable
 {
     let connection: AsyncNametagClientConnection
     let dandelion: DandelionProtocol
@@ -177,7 +177,7 @@ public class DandelionReadable: Readable
     }
 }
 
-public class DandelionWritable: Writable
+public class DandelionClientWritable: Writable
 {
     let connection: AsyncNametagClientConnection
     let dandelion: DandelionProtocol
@@ -201,7 +201,7 @@ public class DandelionWritable: Writable
     }
 }
 
-public enum AsyncDandelionConnectionError: Error
+public enum AsyncDandelionClientConnectionError: Error
 {
     case keychainError
     case nametagError

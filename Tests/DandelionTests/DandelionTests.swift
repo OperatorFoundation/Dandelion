@@ -307,7 +307,7 @@ final class DandelionTests: XCTestCase
         do
         {
             let testLog = Logger(label: "Dandelion Logger")
-            let connection = try await AsyncDandelionConnection(keychain, serverIP, serverPort, testLog, verbose: true)
+            let connection = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
             
             print("• Created an AsyncDandelionConnection connection.")
             
