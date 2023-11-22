@@ -20,12 +20,12 @@ public class DandelionRoutingController
     var connectionQueue = DispatchQueue(label: "NametagClientConnectionQueue")
     var logger: Logger
     
-    init(logger: Logger)
+    public init(logger: Logger)
     {
         self.logger = logger
     }
     
-    func handleListener(dandelionListener: DandelionServer, targetHost: String, targetPort: Int)
+    public func handleListener(dandelionListener: DandelionServer, targetHost: String, targetPort: Int)
     {
         print("ShapeshifterDispatcherSwift: RoutingController.handleListener()")
         
