@@ -180,6 +180,7 @@ public class DandelionReadable: Readable
 public class DandelionWritable: Writable
 {
     let connection: AsyncNametagClientConnection
+    let dandelion: DandelionProtocol
     let logger: Logger
     let verbose: Bool
     let straw: UnsafeStraw
@@ -187,6 +188,7 @@ public class DandelionWritable: Writable
     public init(_ connection: AsyncNametagClientConnection, logger: Logger, verbose: Bool = false)
     {
         self.connection = connection
+        self.dandelion = DandelionProtocol(connection.network)
         self.logger = logger
         self.verbose = verbose
 
@@ -195,7 +197,7 @@ public class DandelionWritable: Writable
 
     public func write(_ data: Data) async throws
     {
-        try await self.connection.network.writeWithLengthPrefix(data, DandelionProtocol.lengthPrefix)
+        try await self.dandelion.writeMessage(write: data)
     }
 }
 
