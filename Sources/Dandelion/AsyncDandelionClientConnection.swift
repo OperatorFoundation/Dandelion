@@ -27,7 +27,7 @@ public class AsyncDandelionClientConnection: AsyncChannelConnection<DandelionCli
     {
         guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
         {
-            throw AsyncDandelionConnectionError.keychainError
+            throw AsyncDandelionClientConnectionError.keychainError
         }
 
         let publicKey = privateSigningKey.publicKey
@@ -37,7 +37,7 @@ public class AsyncDandelionClientConnection: AsyncChannelConnection<DandelionCli
 
         guard let _ = Nametag(keychain: keychain) else
         {
-            throw AsyncDandelionConnectionError.nametagError
+            throw AsyncDandelionClientConnectionError.nametagError
         }
 
         let nametagConnection = try await AsyncNametagClientConnection(connection, keychain, logger)
@@ -160,7 +160,7 @@ public class DandelionClientReadable: Readable
                         }
                         else
                         {
-                            throw AsyncDandelionConnectionError.connectionClosed
+                            throw AsyncDandelionClientConnectionError.connectionClosed
                         }
                 }
             }
@@ -173,7 +173,7 @@ public class DandelionClientReadable: Readable
 
     public func readNonblocking(_ size: Int) async throws -> Data
     {
-        throw AsyncDandelionConnectionError.unimplemented
+        throw AsyncDandelionClientConnectionError.unimplemented
     }
 }
 

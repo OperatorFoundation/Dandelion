@@ -9,7 +9,6 @@ import Foundation
 import Logging
 
 import Chord
-import DandelionServer
 import Keychain
 import TransmissionAsync
 import TransmissionAsyncNametag
@@ -57,7 +56,6 @@ class NametagRoutingController
             catch
             {
                 print("ShapeshifterDispatcherSwift: RoutingController.handleListener: Failed to accept a new connection: \(error).")
-                appLog.error("ShapeshifterDispatcher.handleListener: Failed to accept a new connection: \(error)")
                 continue
             }
         }
@@ -98,7 +96,6 @@ class NametagRoutingController
             catch (let error)
             {
                 print("ShapeshifterDispatcherSwift: RoutingController.handleListener: Failed to connect to the target server. Error: \(error)")
-                appLog.error("ShapeshifterDispatcher.handleListener: Failed to connect to the application server. Error: \(error)")
                 try await clientConnection.network.close()
                 return
             }

@@ -63,7 +63,7 @@ final class DandelionTests: XCTestCase
         
         do
         {
-            var testLog = Logger(subsystem: "TestLogger", category: "main")
+            let testLog = Logger(subsystem: "TestLogger", category: "main")
             let nametagConnection = try NametagClientConnection(config: shadowConfig, keychain: keychain, logger: testLog)
             
             print("• Created a nametag connection.")
@@ -320,7 +320,7 @@ final class DandelionTests: XCTestCase
         }
         catch (let error)
         {
-            print("• Failed to create a nametag connection: \(error)")
+            print("• Failed to create an AsyncDandelionConnection connection: \(error)")
             XCTFail()
             return
         }
@@ -365,34 +365,16 @@ final class DandelionTests: XCTestCase
         
         do
         {
-            let testLog = Logger(subsystem: "TestLogger", category: "main")
+            let testLog = Logger(label: "Dandelion Logger")
+            let connection = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
             
-            guard let connection = TCPConnection(host: serverIP, port: serverPort) else
-            {
-                XCTFail()
-                return
-            }
+            print("• Created an AsyncDandelionConnection connection.")
             
-            let nametagConnection = try NametagClientConnection(connection, keychain, testLog)
+            try await connection.write(message2.data)
+            print("• Wrote some data to the AsyncDandelionConnection connection.")
+
             
-            // FIXME: Handshake and first write are smooshed together, check the buffering on this
-//            try await Task.sleep(for: .seconds(1))
-            
-            print("• Created a nametag connection.")
-            let wroteData = nametagConnection.network.write(string: message2)
-            print("• Wrote some data to the nametag/Dandelion connection.")
-            
-            guard wroteData else
-            {
-                XCTFail()
-                return
-            }
-                        
-            guard let readResult = nametagConnection.network.read(size: 16) else
-            {
-                XCTFail()
-                return
-            }
+            let readResult = try await connection.readSize(16)
             
             print("Read from the nametag connection: \(readResult.string)")
             XCTAssertEqual(message1 + message2, readResult.string)
@@ -446,7 +428,7 @@ final class DandelionTests: XCTestCase
 
         do
         {
-            let testLog = Logger(subsystem: "TestLogger", category: "main")
+//            let testLog = Logger(subsystem: "TestLogger", category: "main")
 
             let connection = try await AsyncTcpSocketConnection(serverIP, serverPort, logger)
 

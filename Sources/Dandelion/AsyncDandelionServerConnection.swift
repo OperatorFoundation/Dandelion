@@ -27,7 +27,7 @@ public class AsyncDandelionServerConnection: AsyncChannelConnection<DandelionSer
     {
         guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
         {
-            throw AsyncDandelionConnectionError.keychainError
+            throw AsyncDandelionServerConnectionError.keychainError
         }
 
         let publicKey = privateSigningKey.publicKey
@@ -37,7 +37,7 @@ public class AsyncDandelionServerConnection: AsyncChannelConnection<DandelionSer
 
         guard let _ = Nametag(keychain: keychain) else
         {
-            throw AsyncDandelionConnectionError.nametagError
+            throw AsyncDandelionServerConnectionError.nametagError
         }
 
         let nametagConnection = try await AsyncNametagClientConnection(connection, keychain, logger)
@@ -47,7 +47,7 @@ public class AsyncDandelionServerConnection: AsyncChannelConnection<DandelionSer
 
     public init(_ connection: AsyncNametagClientConnection, _ logger: Logger, verbose: Bool = false)
     {
-        let channel = DandelionChannel(connection, logger: logger, verbose: verbose)
+        let channel = DandelionServerChannel(connection, logger: logger, verbose: verbose)
 
         super.init(channel, logger, verbose: verbose)
     }
@@ -65,7 +65,7 @@ public class DandelionServerChannel: Channel
 
     public var writable: DandelionServerWritable
     {
-        return DandelionWritable(self.connection, logger: self.logger, verbose: self.verbose)
+        return DandelionServerWritable(self.connection, logger: self.logger, verbose: self.verbose)
     }
 
     let connection: AsyncNametagClientConnection
@@ -160,7 +160,7 @@ public class DandelionServerReadable: Readable
                         }
                         else
                         {
-                            throw AsyncDandelionConnectionError.connectionClosed
+                            throw AsyncDandelionServerConnectionError.connectionClosed
                         }
                 }
             }
@@ -173,7 +173,7 @@ public class DandelionServerReadable: Readable
 
     public func readNonblocking(_ size: Int) async throws -> Data
     {
-        throw AsyncDandelionConnectionError.unimplemented
+        throw AsyncDandelionServerConnectionError.unimplemented
     }
 }
 

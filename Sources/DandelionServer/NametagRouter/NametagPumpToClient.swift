@@ -45,7 +45,7 @@ class NametagPumpToClient
             }
             catch (let error)
             {
-                appLog.debug("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
+                print("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                 await router.clientClosed()
                 return
             }
@@ -73,7 +73,7 @@ class NametagPumpToClient
                 }
                 catch (let error)
                 {
-                    appLog.debug("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
+                    print("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                     await router.updateBuffer(data: dataFromTarget)
                     await router.clientClosed()
                     break
@@ -81,7 +81,7 @@ class NametagPumpToClient
             }
             catch (let error)
             {
-                appLog.debug("ShapeshifterDispatcherSwift: transferTargetToTransport: Received no data from the target on read. Error: \(error)")
+                print("ShapeshifterDispatcherSwift: transferTargetToTransport: Received no data from the target on read. Error: \(error)")
                 await router.serverClosed()
                 break
             }
