@@ -1,5 +1,5 @@
 //
-//  NametagRoutingController.swift
+//  DandelionRoutingController.swift
 //
 //
 //  Created by Mafalda on 10/26/23.
@@ -14,7 +14,7 @@ import TransmissionAsync
 import TransmissionAsyncNametag
 
 
-class NametagRoutingController
+public class DandelionRoutingController
 {
     var routes = [PublicKey: NametagRouter]()
     var connectionQueue = DispatchQueue(label: "NametagClientConnectionQueue")
