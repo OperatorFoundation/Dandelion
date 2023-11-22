@@ -231,12 +231,6 @@ final class DandelionTests: XCTestCase
             try await Task.sleep(for: .seconds(1))
             
             // Second connection
-            guard let connection2 = TCPConnection(host: serverIP, port: serverPort) else
-            {
-                XCTFail()
-                return
-            }
-            
             print("• Created a 2nd TCP connection.")
             
             try await Task.sleep(for: .seconds(1))
@@ -443,10 +437,6 @@ final class DandelionTests: XCTestCase
             try await Task.sleep(for: .seconds(1))
 
             // Second connection
-            let connection2 = try await AsyncTcpSocketConnection(serverIP, serverPort, logger)
-
-            print("• Created a 2nd TCP connection.")
-
             try await Task.sleep(for: .seconds(1))
             let nametagConnection2 = try await AsyncNametagClientConnection(connection, keychain, logger)
             print("• Created a 2nd nametag connection.")

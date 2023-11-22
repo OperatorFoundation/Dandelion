@@ -38,6 +38,7 @@ let package = Package(
             name: "Dandelion",
             dependencies: [
                 "KeychainCli",
+                "Nametag"
         ]),
         .target(
             name: "DandelionServer",
