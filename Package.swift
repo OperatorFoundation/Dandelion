@@ -28,6 +28,7 @@ let package = Package(
         .package(url: "git@github.com:OperatorFoundation/KeychainCli.git", branch: "main"),
         .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main"),
         .package(url: "git@github.com:OperatorFoundation/ShadowSwift.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/Straw.git", branch: "main"),
         .package(url: "git@github.com:OperatorFoundation/TransmissionAsync.git", branch: "main"),
     ],
     
@@ -38,7 +39,10 @@ let package = Package(
             name: "Dandelion",
             dependencies: [
                 "KeychainCli",
-                "Nametag"
+                "Nametag",
+                "TransmissionAsync",
+                "Straw",
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
         .target(
             name: "DandelionServer",
