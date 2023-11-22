@@ -91,7 +91,7 @@ public class DandelionProtocol
         self.connection = connection
     }
 
-    public func readMessage() async throws -> [DandelionProtocolMessage]
+    public func readMessages() async throws -> [DandelionProtocolMessage]
     {
         let data = try await self.connection.readWithLengthPrefix(prefixSizeInBits: Self.lengthPrefix)
         guard let command = data.first else
