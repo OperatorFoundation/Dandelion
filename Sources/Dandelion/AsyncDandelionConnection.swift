@@ -51,15 +51,6 @@ public class AsyncDandelionConnection: AsyncChannelConnection<DandelionChannel>
 
         super.init(channel, logger, verbose: verbose)
     }
-    public func write(_ data: Data)
-    {
-
-    }
-
-    public func read(_ data: Data)
-    {
-
-    }
 }
 
 public class DandelionChannel: Channel
@@ -90,7 +81,10 @@ public class DandelionChannel: Channel
 
     public func close()
     {
-
+        Task
+        {
+            try await self.connection.network.close()
+        }
     }
 }
 
