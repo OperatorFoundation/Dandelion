@@ -346,8 +346,7 @@ final class DandelionTests: XCTestCase
         
         let publicKey = privateSigningKey.publicKey
         
-        print("Initializing nametag. Public key is \(publicKey.data!.count) bytes.")
-        print("Nametag expected public key size is 65 bytes.") //Nametag.expectedPublicKeySize
+        print("• Initializing nametag. Public key is \(publicKey.data!.count) bytes, expected public key size is 65 bytes.") //Nametag.expectedPublicKeySize
         
         guard let _ = Nametag(keychain: keychain) else
         {

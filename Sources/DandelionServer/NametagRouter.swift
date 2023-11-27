@@ -49,17 +49,19 @@ actor NametagRouter
         switch state 
         {
             case .closing:
-                print("ERROR: Currently closing new connections cannot be accepted.")
+                print("⚘ Client connected while in the router closing state, connections cannot be accepted. This is an error, closing the client connection.")
                 self.state = .closing
                 try await connection.network.close()
                 throw NametagRouterError.connectionWhileClosing
                 
             case .paused:
+                print("⚘ Client connected while in the paused state. Setting this router state to active.")
                 self.clientConnection = connection
                 self.state = .active
                 self.connectionReaper = nil
                 
             case .active:
+                print("⚘ Client connected while in the active state. This is an error, closing the client connection and setting this router state to closing.")
                 self.state = .closing
                 try await connection.network.close()
                 throw NametagRouterError.connectionWhileActive
@@ -68,7 +70,7 @@ actor NametagRouter
     
     func clientClosed() async
     {
-        print("NametagRouter: clientClosed() called.")
+        print("⚘ NametagRouter: clientClosed() called.")
         switch state
         {
             case .closing:
@@ -82,7 +84,7 @@ actor NametagRouter
         
         guard let cleaner = cleaner else
         {
-            print("Trying to cleanup but the cleaner is nil!")
+            print("⚘ Trying to cleanup but the cleaner is nil!")
             return
         }
         
@@ -91,12 +93,12 @@ actor NametagRouter
     
     func serverClosed() async
     {
-        print("NametagRouter: serverClosed() called.")
+        print("⚘ NametagRouter: serverClosed() called.")
         state = .closing
         
         guard let cleaner = cleaner else
         {
-            print("Trying to cleanup but the cleaner is nil!")
+            print("⚘ Trying to cleanup but the cleaner is nil!")
             return
         }
         
@@ -134,9 +136,9 @@ public enum NametagRouterError: Error
         switch self 
         {
             case .connectionWhileClosing:
-                return "ERROR: Currently closing new connections cannot be accepted."
+                return "⚘ ERROR: Currently closing new connections cannot be accepted."
             case .connectionWhileActive:
-                return "ERROR: Received a new client connection while a client connection to this target is already active."
+                return "⚘ ERROR: Received a new client connection while a client connection to this target is already active."
         }
     }
 }

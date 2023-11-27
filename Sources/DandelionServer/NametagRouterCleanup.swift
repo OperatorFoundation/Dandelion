@@ -40,22 +40,22 @@ class NametagRouterCleanup
                 }
                 catch (let error)
                 {
-                    print("Received an error while trying to close a target connection: \(error)")
+                    print("⚘ Received an error while trying to close a target connection: \(error)")
                 }
                 
             case .paused:
-                print("🧼 Route cleanup paused...")
+                print("⚘ 🧼 Route cleanup paused...")
                 do
                 {
                     try await router.clientConnection.network.close()
                 }
                 catch (let error)
                 {
-                    print("Received an error while trying to close a client connection: \(error)")
+                    print("⚘ Received an error while trying to close a client connection: \(error)")
                 }
 
             case .active:
-                print("🧼 Route cleanup active, no cleanup needed.")
+                print("⚘ 🧼 Route cleanup active, no cleanup needed.")
         }
     }
 }
