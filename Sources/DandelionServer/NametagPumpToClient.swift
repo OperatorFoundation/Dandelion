@@ -24,14 +24,14 @@ class NametagPumpToClient
         
         Task
         {
-            print("NametagPumpToClient: calling transferTargetToTransport()")
+            print("⚘ NametagPumpToClient: calling transferTargetToTransport()")
             await self.transferTargetToTransport(transportConnection: router.clientConnection, targetConnection: router.targetConnection)
         }
     }
     
     func transferTargetToTransport(transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
     {
-        print("Dandelion: Target to Transport running...")
+        print("⚘ Target to Transport")
         
         // Check to see if we have data waiting for the client from a previous session
         // Send it if we do and clear it out when we are done
@@ -39,13 +39,13 @@ class NametagPumpToClient
         {
             do
             {
-                print("Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
+                print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
                 try await transportConnection.network.write(dataWaiting)
                 await router.updateBuffer(data: nil)
             }
             catch (let error)
             {
-                print("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
+                print("⚘ Target to Transport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                 await router.clientClosed()
                 return
             }
@@ -60,20 +60,20 @@ class NametagPumpToClient
                 guard dataFromTarget.count > 0 else
                 {
                     // Skip to the next round
-                    print("🔖 NametagRouter: Received 0 bytes while reading from the client connection.")
+                    print("⚘ Target to Transport: Received 0 bytes while reading from the client connection.")
                     continue
                 }
                   
-                print("🔖 NametagRouter: Received \(dataFromTarget.count) bytes while reading from the client connection.")
+                print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the client connection.")
                 
                 do
                 {
                     try await transportConnection.network.write(dataFromTarget)
-                    print("🔖 NametagRouter: Wrote \(dataFromTarget.count) bytes to the target connection.")
+                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the target connection.")
                 }
                 catch (let error)
                 {
-                    print("ShapeshifterDispatcherSwift: transferTargetToTransport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
+                    print("⚘ Target to Transport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                     await router.updateBuffer(data: dataFromTarget)
                     await router.clientClosed()
                     break
@@ -81,7 +81,7 @@ class NametagPumpToClient
             }
             catch (let error)
             {
-                print("ShapeshifterDispatcherSwift: transferTargetToTransport: Received no data from the target on read. Error: \(error)")
+                print("⚘ Target to Transport: Received no data from the target on read. Error: \(error)")
                 await router.serverClosed()
                 break
             }
@@ -89,6 +89,6 @@ class NametagPumpToClient
             await Task.yield() // Take turns
         }
         
-        print("Server to client loop finished.")
+        print("⚘ Target to Transport: loop finished.")
     }
 }

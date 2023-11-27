@@ -42,7 +42,7 @@ public class DandelionServer
         }
         catch (let error)
         {
-            logger.error("Failed to start a listener on port \(config.serverPort). Error: \(error)")
+            logger.error("⚘ Failed to start a listener on port \(config.serverPort). Error: \(error)")
             return nil
         }
         
