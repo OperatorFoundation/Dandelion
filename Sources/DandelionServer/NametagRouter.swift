@@ -25,14 +25,14 @@ actor NametagRouter
     
     var clientConnection: AsyncNametagServerConnection
     let targetConnection: AsyncConnection
-    let controller: NametagRoutingController
+    let controller: DandelionRoutingController
     var clientConnectionCount = 1
     var state: NametagRouterState = .active
     var bufferedDataForClient: Data? = nil
     
     // MARK: End Shared State
     
-    init(controller: NametagRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection, buffer: Data? = nil) async
+    init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection, buffer: Data? = nil) async
     {
         self.controller = controller
         self.clientConnection = transportConnection

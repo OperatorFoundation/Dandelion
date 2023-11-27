@@ -22,6 +22,7 @@ let package = Package(
     ],
     
     dependencies: [
+<<<<<<< HEAD
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
         .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
         .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
@@ -29,6 +30,16 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
+=======
+        .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
+        .package(url: "git@github.com:apple/swift-log.git", from: "1.5.3"),
+        .package(url: "git@github.com:OperatorFoundation/Keychain.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/KeychainCli.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/ShadowSwift.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/Straw.git", branch: "main"),
+        .package(url: "git@github.com:OperatorFoundation/TransmissionAsync.git", branch: "main"),
+>>>>>>> 655f582d2aa65074f03c1aa871ce742b92a93442
     ],
     
     targets: [
@@ -39,7 +50,12 @@ let package = Package(
             dependencies: [
                 "KeychainCli",
                 "Nametag",
+<<<<<<< HEAD
 
+=======
+                "TransmissionAsync",
+                "Straw",
+>>>>>>> 655f582d2aa65074f03c1aa871ce742b92a93442
                 .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
         .target(
