@@ -8,70 +8,57 @@
 import Foundation
 import TransmissionAsync
 
-extension UInt8
+public enum DandelionProtocolMessageType: UInt8
 {
-    public func check(bitmask: UInt8) -> Bool
-    {
-        return (self & bitmask) == 1
-    }
-}
-
-public enum DandelionProtocolBitmask: UInt8
-{
-    case close = 0b00000001
-    case write = 0b00000010
-    case ack   = 0b00000100
+    case close = 67 // 'C'
+    case write = 87 // 'W'
+    case ack   = 65 // 'A'
 }
 
 public enum DandelionProtocolMessage
 {
-    static public func parseCommand(_ byte: UInt8, _ payload: Data) -> [DandelionProtocolMessage]
+    public init(data: Data) throws
     {
-        var results: [DandelionProtocolMessage] = []
-
-        if byte.check(bitmask: DandelionProtocolBitmask.ack.rawValue)
+        guard let type = data.first else
         {
-            results.append(.ack)
+            throw DandelionProtocolError.chunkTooShort
         }
 
-        if byte.check(bitmask: DandelionProtocolBitmask.write.rawValue)
+        let payload = data.dropFirst()
+
+        guard let type = DandelionProtocolMessageType(rawValue: type) else
         {
-            results.append(.write(payload))
+            throw DandelionProtocolError.badCommand(type)
         }
 
-        if byte.check(bitmask: DandelionProtocolBitmask.close.rawValue)
+        switch type
         {
-            results.append(.close)
-        }
+            case .ack:
+                self = .ack
+                return
 
-        return results
+            case .close:
+                self = .close
+                return
+
+            case .write:
+                self = .write(payload)
+                return
+        }
     }
 
-    static public func encode(payload: Data? = nil, ack: Bool = false, close: Bool = false) -> Data
+    public var data: Data
     {
-        var command: UInt8 = 0
-
-        if ack
+        switch self
         {
-            command |= DandelionProtocolBitmask.ack.rawValue
-        }
+            case .ack:
+                return Data(array: [DandelionProtocolMessageType.ack.rawValue])
 
-        if close
-        {
-            command |= DandelionProtocolBitmask.close.rawValue
-        }
+            case .close:
+                return Data(array: [DandelionProtocolMessageType.close.rawValue])
 
-        if let payload = payload
-        {
-            command |= DandelionProtocolBitmask.write.rawValue
-            var result = Data(array: [command])
-            result.append(payload)
-
-            return result
-        }
-        else
-        {
-            return Data(array: [command])
+            case .write(let payload):
+                return Data(array: [DandelionProtocolMessageType.write.rawValue] + payload)
         }
     }
 
@@ -91,27 +78,34 @@ public class DandelionProtocol
         self.connection = connection
     }
 
-    public func readMessages() async throws -> [DandelionProtocolMessage]
+    public func readMessage() async throws -> DandelionProtocolMessage
     {
         let data = try await self.connection.readWithLengthPrefix(prefixSizeInBits: Self.lengthPrefix)
-        guard let command = data.first else
-        {
-            throw DandelionProtocolError.chunkTooShort
-        }
-
-        let payload = data.dropFirst()
-
-        return DandelionProtocolMessage.parseCommand(command, payload)
+        return try DandelionProtocolMessage(data: data)
     }
 
-    public func writeMessage(write: Data? = nil, ack: Bool = false, close: Bool = false) async throws
+    public func write(data: Data) async throws
     {
-        let message = DandelionProtocolMessage.encode(payload: write, ack: ack, close: close)
-        try await self.connection.writeWithLengthPrefix(message, Self.lengthPrefix)
+        let message = DandelionProtocolMessage.write(data)
+        try await self.connection.writeWithLengthPrefix(message.data, Self.lengthPrefix)
+    }
+
+    public func ack() async throws
+    {
+        let message = DandelionProtocolMessage.ack
+        try await self.connection.writeWithLengthPrefix(message.data, Self.lengthPrefix)
+    }
+
+    public func close() async throws
+    {
+        let message = DandelionProtocolMessage.close
+        try await self.connection.writeWithLengthPrefix(message.data, Self.lengthPrefix)
     }
 }
 
 public enum DandelionProtocolError: Error
 {
     case chunkTooShort
+    case badCommand(UInt8)
+    case missingData
 }
