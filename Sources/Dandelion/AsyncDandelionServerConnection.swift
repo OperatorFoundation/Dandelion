@@ -113,20 +113,17 @@ public class DandelionServerReadable: Readable
             return try self.straw.read()
         }
 
-        let messages = try await self.dandelion.readMessages()
-        for message in messages
+        let message = try await self.dandelion.readMessage()
+        switch message
         {
-            switch message
-            {
-                case .ack:
-                    return Data() // FIXME
+            case .ack:
+                return Data() // FIXME
 
-                case .write(let payload):
-                    self.straw.write(payload)
+            case .write(let payload):
+                self.straw.write(payload)
 
-                case .close:
-                    try await self.connection.network.close()
-            }
+            case .close:
+                try await self.connection.network.close()
         }
 
         return try self.straw.read()
@@ -141,28 +138,25 @@ public class DandelionServerReadable: Readable
 
         while self.straw.count < size
         {
-            let messages = try await self.dandelion.readMessages()
-            for message in messages
+            let message = try await self.dandelion.readMessage()
+            switch message
             {
-                switch message
-                {
-                    case .ack:
-                        return Data() // FIXME
+                case .ack:
+                    return Data() // FIXME
 
-                    case .write(let payload):
-                        self.straw.write(payload)
+                case .write(let payload):
+                    self.straw.write(payload)
 
-                    case .close:
-                        try await self.connection.network.close()
-                        if self.straw.count >= size
-                        {
-                            return try self.straw.read(size: size)
-                        }
-                        else
-                        {
-                            throw AsyncDandelionServerConnectionError.connectionClosed
-                        }
-                }
+                case .close:
+                    try await self.connection.network.close()
+                    if self.straw.count >= size
+                    {
+                        return try self.straw.read(size: size)
+                    }
+                    else
+                    {
+                        throw AsyncDandelionServerConnectionError.connectionClosed
+                    }
             }
 
             await Task.yield()
@@ -197,7 +191,7 @@ public class DandelionServerWritable: Writable
 
     public func write(_ data: Data) async throws
     {
-        try await self.dandelion.writeMessage(write: data)
+        try await self.dandelion.write(data: data)
     }
 }
 

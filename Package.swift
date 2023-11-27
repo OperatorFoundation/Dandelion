@@ -22,13 +22,13 @@ let package = Package(
     ],
     
     dependencies: [
-        .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
-        .package(url: "git@github.com:apple/swift-log.git", from: "1.5.3"),
-        .package(url: "git@github.com:OperatorFoundation/Keychain.git", branch: "main"),
-        .package(url: "git@github.com:OperatorFoundation/KeychainCli.git", branch: "main"),
-        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "main"),
-        .package(url: "git@github.com:OperatorFoundation/ShadowSwift.git", branch: "main"),
-        .package(url: "git@github.com:OperatorFoundation/TransmissionAsync.git", branch: "main"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
+        .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/KeychainCli", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     
     targets: [
@@ -38,7 +38,9 @@ let package = Package(
             name: "Dandelion",
             dependencies: [
                 "KeychainCli",
-                "Nametag"
+                "Nametag",
+
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
         .target(
             name: "DandelionServer",
