@@ -30,16 +30,16 @@ class NametagPumpToServer
     
     func transferTransportToTarget(transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
     {
-        print("⚘ Transport to Target running...")
+        print("⚘ Transport to Target")
         
         while await router.state == .active
         {
-            print("⚘ Transport to Target: Attempting to read...")
-            
             do
             {
+                print("⚘ Transport to Target: Attempting to read from the transport connection.")
+                
                 let dataFromTransport = try await transportConnection.network.readMinMaxSize(1, NametagRouter.maxReadSize)
-                print("⚘ Transport to Target: read \(dataFromTransport.count) bytes.")
+                print("⚘ Transport to Target: received \(dataFromTransport.count) bytes while reading from the transport connection.")
                 
                 guard dataFromTransport.count > 0 else
                 {
@@ -52,14 +52,14 @@ class NametagPumpToServer
                 }
                 catch (let error)
                 {
-                    print("⚘ Transport to Target: Unable to send target data to the target connection. The connection was likely closed. Error: \(error)")
+                    print("⚘ Transport to Target: Unable to send transport data to the target connection. The connection was likely closed. Error: \(error)")
                     await router.serverClosed()
                     break
                 }
             }
             catch (let error)
             {
-                print("⚘ Transport to Target: Received no data from the target on read. Error: \(error)")
+                print("⚘ Transport to Target: Received no data from the transport on read. Error: \(error)")
                 await router.clientClosed()
                 break
             }

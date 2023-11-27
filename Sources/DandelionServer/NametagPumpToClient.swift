@@ -60,16 +60,16 @@ class NametagPumpToClient
                 guard dataFromTarget.count > 0 else
                 {
                     // Skip to the next round
-                    print("⚘ Target to Transport: Received 0 bytes while reading from the client connection.")
+                    print("⚘ Target to Transport: Received 0 bytes while reading from the target connection.")
                     continue
                 }
                   
-                print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the client connection.")
+                print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
                 
                 do
                 {
                     try await transportConnection.network.write(dataFromTarget)
-                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the target connection.")
+                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the transport connection.")
                 }
                 catch (let error)
                 {
