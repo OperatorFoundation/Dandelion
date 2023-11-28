@@ -112,21 +112,11 @@ public class DandelionClientReadable: Readable
         {
             return try self.straw.read()
         }
-
-        let message = try await self.dandelion.readMessage()
-        switch message
-        {
-            case .ack:
-                return Data() // FIXME
-
-            case .write(let payload):
-                self.straw.write(payload)
-
-            case .close:
-                try await self.connection.network.close()
-        }
-
-        return try self.straw.read()
+        
+        let receivedData = try await connection.network.readWithLengthPrefix(prefixSizeInBits: DandelionProtocol.lengthPrefix)
+        try await self.dandelion.ack()
+        
+        return receivedData
     }
 
     public func read(_ size: Int) async throws -> Data
@@ -138,26 +128,9 @@ public class DandelionClientReadable: Readable
 
         while self.straw.count < size
         {
-            let message = try await self.dandelion.readMessage()
-            switch message
-            {
-                case .ack:
-                    return Data() // FIXME
-
-                case .write(let payload):
-                    self.straw.write(payload)
-
-                case .close:
-                    try await self.connection.network.close()
-                    if self.straw.count >= size
-                    {
-                        return try self.straw.read(size: size)
-                    }
-                    else
-                    {
-                        throw AsyncDandelionClientConnectionError.connectionClosed
-                    }
-            }
+            let message = try await connection.network.readWithLengthPrefix(prefixSizeInBits: DandelionProtocol.lengthPrefix)
+            try await self.dandelion.ack()
+            self.straw.write(message)
 
             await Task.yield()
         }

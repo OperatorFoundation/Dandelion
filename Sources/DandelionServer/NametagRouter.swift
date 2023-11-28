@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Straw
 import TransmissionAsync
 import TransmissionAsyncNametag
 
@@ -28,7 +29,8 @@ actor NametagRouter
     let controller: DandelionRoutingController
     var clientConnectionCount = 1
     var state: NametagRouterState = .active
-    var bufferedDataForClient: Data? = nil
+    var unAckedClientData: Data? = nil
+    var unsentClientData = Straw()
     
     // MARK: End Shared State
     
@@ -37,7 +39,7 @@ actor NametagRouter
         self.controller = controller
         self.clientConnection = transportConnection
         self.targetConnection = targetConnection
-        self.bufferedDataForClient = buffer
+        self.unAckedClientData = buffer
 
         self.cleaner = NametagRouterCleanup(router: self)
         self.serverPump = NametagPumpToServer(router: self)
@@ -107,7 +109,7 @@ actor NametagRouter
     
     func updateBuffer(data: Data?)
     {
-        self.bufferedDataForClient = data
+        self.unAckedClientData = data
     }
 }
 

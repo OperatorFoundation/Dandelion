@@ -69,7 +69,7 @@ public enum DandelionProtocolMessage
 
 public class DandelionProtocol
 {
-    static let lengthPrefix: Int = 64
+    public static let lengthPrefix: Int = 64
 
     let connection: AsyncConnection
 

@@ -49,6 +49,7 @@ let package = Package(
             dependencies: [
                 "Dandelion",
                 "Keychain",
+                "Straw",
                 "TransmissionAsync",
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "TransmissionAsyncNametag", package: "Nametag"),

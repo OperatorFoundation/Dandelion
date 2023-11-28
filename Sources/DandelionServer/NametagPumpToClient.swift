@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Dandelion
 import TransmissionAsync
 import TransmissionAsyncNametag
 
@@ -32,16 +33,15 @@ class NametagPumpToClient
     func transferTargetToTransport(transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
     {
         print("⚘ Target to Transport")
-        
+                
         // Check to see if we have data waiting for the client from a previous session
         // Send it if we do and clear it out when we are done
-        if let dataWaiting = await router.bufferedDataForClient
+        if let dataWaiting = await router.unAckedClientData
         {
             do
             {
                 print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
-                try await transportConnection.network.write(dataWaiting)
-                await router.updateBuffer(data: nil)
+                try await transportConnection.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
             }
             catch (let error)
             {
@@ -66,18 +66,21 @@ class NametagPumpToClient
                   
                 print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
                 
-                do
+                
+                if await router.unAckedClientData == nil
                 {
-                    try await transportConnection.network.write(dataFromTarget)
-                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the transport connection.")
-                }
-                catch (let error)
-                {
-                    print("⚘ Target to Transport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                     await router.updateBuffer(data: dataFromTarget)
-                    await router.clientClosed()
-                    break
+                    try await transportConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
+                    
+                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
                 }
+                else
+                {
+                    await router.unsentClientData.write(dataFromTarget)
+                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the unsentClientData buffer.")
+                }
+                
+                
             }
             catch (let error)
             {
