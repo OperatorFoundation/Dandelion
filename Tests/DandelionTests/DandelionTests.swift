@@ -310,7 +310,7 @@ final class DandelionTests: XCTestCase
         try await connection.close()
 
         // Second connection
-        try await Task.sleep(for: .seconds(2))
+        try await Task.sleep(for: .seconds(5))
         let connection2 = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
         print("• Created a 2nd nametag connection.")
         try await connection2.write(message2.data)

@@ -34,12 +34,23 @@ actor NametagRouter
     
     // MARK: End Shared State
     
-    init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection, buffer: Data? = nil) async
+    init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
     {
         self.controller = controller
         self.clientConnection = transportConnection
         self.targetConnection = targetConnection
-        self.unAckedClientData = buffer
+
+        self.cleaner = NametagRouterCleanup(router: self)
+        self.serverPump = NametagPumpToServer(router: self)
+        self.clientPump = NametagPumpToClient(router: self)
+    }
+    
+    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async
+    {
+        self.controller = router.controller
+        self.clientConnection = transportConnection
+        self.targetConnection = router.targetConnection
+        self.unAckedClientData = await router.unAckedClientData
 
         self.cleaner = NametagRouterCleanup(router: self)
         self.serverPump = NametagPumpToServer(router: self)
