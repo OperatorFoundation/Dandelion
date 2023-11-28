@@ -264,8 +264,6 @@ final class DandelionTests: XCTestCase
 
     func testConnectToDandelionServerTwiceAsync() async throws
     {
-        let logger: Logging.Logger = Logging.Logger(label: "test")
-
         let serverIP = "127.0.0.1"
         let serverPort = 5771
         let message1 = "Hello"
@@ -301,40 +299,27 @@ final class DandelionTests: XCTestCase
 
         print("• created a Nametag instance.")
 
-        do
-        {
-//            let testLog = Logger(subsystem: "TestLogger", category: "main")
+        let testLog = Logger(label: "Dandelion Logger")
+        let connection = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
 
-            let connection = try await AsyncTcpSocketConnection(serverIP, serverPort, logger)
 
-            let nametagConnection = try await AsyncNametagClientConnection(connection, keychain, logger)
+        print("• Created a nametag connection.")
+        try await connection.write(message1.data)
+        print("• Wrote some data to the nametag/Dandelion connection.")
 
-            print("• Created a nametag connection.")
-            try await nametagConnection.network.writeString(string: message1)
-            print("• Wrote some data to the nametag/Dandelion connection.")
+        try await connection.close()
 
-            try await connection.close()
+        // Second connection
+        try await Task.sleep(for: .seconds(2))
+        let connection2 = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
+        print("• Created a 2nd nametag connection.")
+        try await connection2.write(message2.data)
+        print("• Wrote some data to the nametag/Dandelion connection.")
 
-            try await Task.sleep(for: .seconds(1))
+        let readResult = try await connection2.readSize(16)
 
-            // Second connection
-            try await Task.sleep(for: .seconds(1))
-            let nametagConnection2 = try await AsyncNametagClientConnection(connection, keychain, logger)
-            print("• Created a 2nd nametag connection.")
-            try await nametagConnection.network.writeString(string: message2)
-            print("• Wrote some data to the nametag/Dandelion connection.")
-
-            let readResult = try await nametagConnection2.network.readSize(16)
-
-            print("Read from the nametag connection: \(readResult.string)")
-            XCTAssertEqual(message1 + message2, readResult.string)
-        }
-        catch (let error)
-        {
-            print("• Failed to create a nametag connection: \(error)")
-            XCTFail()
-            return
-        }
+        print("Read from the nametag connection: \(readResult.string)")
+        XCTAssertEqual(message1 + message2, readResult.string)
     }
 
 }

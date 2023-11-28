@@ -42,6 +42,7 @@ class NametagPumpToClient
             {
                 print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
                 try await transportConnection.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
+                print("⚘ Target to Transport: Wrote \(dataWaiting.count) bytes of buffered data to the client connection.")
             }
             catch (let error)
             {
@@ -73,6 +74,8 @@ class NametagPumpToClient
                     
                     do
                     {
+                        print("⚘ Target to Transport: Writing dataFromTarget (\(dataFromTarget.count) bytes) to the client connection.")
+                        
                         try await transportConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
                         
                         print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
