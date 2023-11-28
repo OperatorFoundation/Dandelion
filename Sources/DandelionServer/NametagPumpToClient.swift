@@ -26,11 +26,11 @@ class NametagPumpToClient
         self.pump = Task
         {
             print("⚘ NametagPumpToClient: calling transferTargetToTransport()")
-            await self.transferTargetToTransport(transportConnection: router.clientConnection, targetConnection: router.targetConnection)
+            await self.transferTargetToTransport()
         }
     }
     
-    func transferTargetToTransport(transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
+    func transferTargetToTransport() async
     {
         print("⚘ Target to Transport")
                 
@@ -41,7 +41,7 @@ class NametagPumpToClient
             do
             {
                 print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
-                try await transportConnection.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
+                try await router.clientConnection.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
                 print("⚘ Target to Transport: Wrote \(dataWaiting.count) bytes of buffered data to the client connection.")
             }
             catch (let error)
@@ -56,7 +56,7 @@ class NametagPumpToClient
         {
             do
             {
-                let dataFromTarget = try await targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
+                let dataFromTarget = try await router.targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
                 
                 guard dataFromTarget.count > 0 else
                 {
@@ -76,7 +76,7 @@ class NametagPumpToClient
                     {
                         print("⚘ Target to Transport: Writing dataFromTarget (\(dataFromTarget.count) bytes) to the client connection.")
                         
-                        try await transportConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
+                        try await router.clientConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
                         
                         print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
                     }

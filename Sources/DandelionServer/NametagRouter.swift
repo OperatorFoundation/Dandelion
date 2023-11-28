@@ -45,18 +45,18 @@ actor NametagRouter
         self.clientPump = NametagPumpToClient(router: self)
     }
     
-    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async
-    {
-        self.controller = router.controller
-        self.clientConnection = transportConnection
-        self.targetConnection = router.targetConnection
-        self.unAckedClientData = await router.unAckedClientData
-        self.state = await router.state
-
-        self.cleaner = NametagRouterCleanup(router: self)
-        self.serverPump = NametagPumpToServer(router: self)
-        self.clientPump = NametagPumpToClient(router: self)
-    }
+//    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async
+//    {
+//        self.controller = router.controller
+//        self.clientConnection = transportConnection
+//        self.targetConnection = router.targetConnection
+//        self.unAckedClientData = await router.unAckedClientData
+//        self.state = await router.state
+//
+//        self.cleaner = NametagRouterCleanup(router: self)
+//        self.serverPump = NametagPumpToServer(router: self)
+//        self.clientPump = NametagPumpToClient(router: self)
+//    }
     
     func clientConnected(connection: AsyncNametagServerConnection) async throws
     {
@@ -117,6 +117,11 @@ actor NametagRouter
         }
         
         await cleaner.cleanup()
+    }
+    
+    func reconnect(clientConnection: AsyncNametagServerConnection)
+    {
+        self.clientConnection = clientConnection
     }
     
     func updateBuffer(data: Data?)

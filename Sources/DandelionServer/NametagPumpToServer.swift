@@ -25,14 +25,14 @@ class NametagPumpToServer
         self.pump = Task
         {
             print("⚘ NametagPumpToServer: calling transferTransportToTarget()")
-            await self.transferTransportToTarget(transportConnection: router.clientConnection, targetConnection: router.targetConnection)
+            await self.transferTransportToTarget()
         }
     }
     
-    func transferTransportToTarget(transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
+    func transferTransportToTarget() async
     {
         print("⚘ Transport to Target")
-        let dandelionProtocolConnection = DandelionProtocol(transportConnection.network)
+        let dandelionProtocolConnection = await DandelionProtocol(router.clientConnection.network)
         
         while await router.state == .active
         {
@@ -59,7 +59,7 @@ class NametagPumpToServer
                         
                         do
                         {
-                            try await targetConnection.write(dataFromTransport)
+                            try await router.targetConnection.write(dataFromTransport)
                         }
                         catch (let error)
                         {
@@ -86,7 +86,7 @@ class NametagPumpToServer
                             await router.updateBuffer(data: dataToSend)
                             
                             print("⚘ Transport to Target: Writing buffered data (\(dataToSend.count) bytes) to the client connection.")
-                            try await transportConnection.network.write(dataToSend)
+                            try await router.clientConnection.network.write(dataToSend)
                             print("⚘ Transport to Target: Wrote \(dataToSend.count) bytes of buffered data to the client connection.")
                         }
                 }
