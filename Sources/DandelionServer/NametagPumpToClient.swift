@@ -70,9 +70,19 @@ class NametagPumpToClient
                 if await router.unAckedClientData == nil
                 {
                     await router.updateBuffer(data: dataFromTarget)
-                    try await transportConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
                     
-                    print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
+                    do
+                    {
+                        try await transportConnection.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
+                        
+                        print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
+                    }
+                    catch (let error)
+                    {
+                        print("⚘ Target to Transport: Received an error while trying to write to the client. Error: \(error)")
+                        await router.clientClosed()
+                        break
+                    }
                 }
                 else
                 {

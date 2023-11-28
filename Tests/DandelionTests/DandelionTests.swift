@@ -249,7 +249,7 @@ final class DandelionTests: XCTestCase
             try await connection.write(message2.data)
             print("• Wrote some data to the AsyncDandelionConnection connection.")
             
-            let readResult = try await connection.readSize(1)
+            let readResult = try await connection.readSize(16)
             
             print("• Read from the nametag connection: \(readResult.string)")
             XCTAssertEqual(message1 + message2, readResult.string)
