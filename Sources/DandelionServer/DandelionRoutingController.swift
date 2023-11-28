@@ -68,10 +68,10 @@ public class DandelionRoutingController
         if let existingRoute = routes[clientConnection.publicKey]
         {
             print("⚘ Handling a connection from an existing route...")
-            try await existingRoute.clientConnected(connection: clientConnection)
             
             /// While that incoming connection is open, data is pumped between the incoming connection and the newly opened target application server connection.
             let route = await NametagRouter(controller: self, transportConnection: clientConnection, targetConnection: existingRoute.targetConnection, buffer: existingRoute.unAckedClientData)
+            try await route.clientConnected(connection: clientConnection)
             print("⚘ An existing route has been updated.")
             
             // We don't already have this public key, save it to our routes

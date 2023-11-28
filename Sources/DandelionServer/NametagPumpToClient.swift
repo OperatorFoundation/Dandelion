@@ -15,8 +15,7 @@ import TransmissionAsyncNametag
 class NametagPumpToClient
 {
     let targetToTransportQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.targetToTransportQueue")
-    
-    var router: NametagRouter
+    let router: NametagRouter
     
     
     init(router: NametagRouter)
