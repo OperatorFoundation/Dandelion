@@ -51,6 +51,7 @@ actor NametagRouter
         self.clientConnection = transportConnection
         self.targetConnection = router.targetConnection
         self.unAckedClientData = await router.unAckedClientData
+        self.state = await router.state
 
         self.cleaner = NametagRouterCleanup(router: self)
         self.serverPump = NametagPumpToServer(router: self)
