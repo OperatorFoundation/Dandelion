@@ -213,12 +213,8 @@ final class DandelionTests: XCTestCase
         let serverPort = 5771
         let message1 = "Hello"
         let message2 = " Dandelion."
-        
-        // Get a shadow config
         let testKeychainURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".keychainTest")
         
-        
-        // Use Shadow connection to make a Nametag connection
         guard let keychain = Keychain(baseDirectory: testKeychainURL) else
         {
             XCTFail()
@@ -252,7 +248,6 @@ final class DandelionTests: XCTestCase
             
             try await connection.write(message2.data)
             print("• Wrote some data to the AsyncDandelionConnection connection.")
-
             
             let readResult = try await connection.readSize(1)
             
