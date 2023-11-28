@@ -14,7 +14,7 @@ import TransmissionAsyncNametag
 class NametagPumpToServer
 {
     let transportToTargetQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.transportToTargetQueue")
-    
+    var pump: Task<(), Never>? = nil
     var router: NametagRouter
     
     
@@ -22,7 +22,7 @@ class NametagPumpToServer
     {
         self.router = router
         
-        Task
+        self.pump = Task
         {
             print("⚘ NametagPumpToServer: calling transferTransportToTarget()")
             await self.transferTransportToTarget(transportConnection: router.clientConnection, targetConnection: router.targetConnection)
@@ -100,5 +100,10 @@ class NametagPumpToServer
             
             await Task.yield() // Take turns y'all
         }
+    }
+    
+    public func close()
+    {
+        self.pump?.cancel()
     }
 }

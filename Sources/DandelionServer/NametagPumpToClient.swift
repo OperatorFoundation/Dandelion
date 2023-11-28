@@ -16,13 +16,14 @@ class NametagPumpToClient
 {
     let targetToTransportQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.targetToTransportQueue")
     let router: NametagRouter
+    var pump: Task<(), Never>? = nil
     
     
     init(router: NametagRouter)
     {
         self.router = router
         
-        Task
+        self.pump = Task
         {
             print("⚘ NametagPumpToClient: calling transferTargetToTransport()")
             await self.transferTargetToTransport(transportConnection: router.clientConnection, targetConnection: router.targetConnection)
@@ -105,5 +106,10 @@ class NametagPumpToClient
         }
         
         print("⚘ Target to Transport: loop finished.")
+    }
+    
+    public func close()
+    {
+        self.pump?.cancel()
     }
 }

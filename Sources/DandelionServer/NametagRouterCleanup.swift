@@ -48,6 +48,8 @@ class NametagRouterCleanup
                 do
                 {
                     try await router.clientConnection.network.close()
+                    await router.clientPump?.close()
+                    await router.serverPump?.close()
                 }
                 catch (let error)
                 {
