@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Chord
+import KeychainTypes
 import Straw
 import TransmissionAsync
 import TransmissionAsyncNametag
@@ -14,17 +16,20 @@ import TransmissionAsyncNametag
 actor NametagRouter
 {
     static let maxReadSize = 2048 // Could be tuned through testing in the future
-    let uuid = UUID()
     
+    public let clientConnection: AsyncNametagServerConnection
+
+    let uuid = UUID()
+
     var cleaner: NametagRouterCleanup? = nil
     var serverPump: NametagPumpToServer? = nil
     var clientPump: NametagPumpToClient? = nil
     var connectionReaper: NametagConnectionReaper? = nil
     
-    
     // MARK: Shared State
-    
-    var clientConnection: AsyncNametagServerConnection
+    let clientsForClientPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
+    let clientsForServerPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
+
     let targetConnection: AsyncConnection
     let controller: DandelionRoutingController
     var clientConnectionCount = 1
@@ -41,8 +46,12 @@ actor NametagRouter
         self.targetConnection = targetConnection
 
         self.cleaner = NametagRouterCleanup(router: self)
-        self.serverPump = NametagPumpToServer(router: self)
-        self.clientPump = NametagPumpToClient(router: self)
+
+        await self.clientsForClientPump.enqueue(element: transportConnection)
+        await self.clientsForServerPump.enqueue(element: transportConnection)
+
+        self.serverPump = NametagPumpToServer(router: self, clients: self.clientsForClientPump)
+        self.clientPump = NametagPumpToClient(router: self, clients: self.clientsForServerPump)
     }
     
 //    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async
@@ -70,7 +79,9 @@ actor NametagRouter
                 
             case .paused:
                 print("⚘ Client connected while in the paused state. Setting this router state to active.")
-                self.clientConnection = connection
+                await self.clientsForClientPump.enqueue(element: connection)
+                await self.clientsForServerPump.enqueue(element: connection)
+
                 self.state = .active
                 self.connectionReaper = nil
                 
@@ -119,9 +130,10 @@ actor NametagRouter
         await cleaner.cleanup()
     }
     
-    func reconnect(clientConnection: AsyncNametagServerConnection)
+    func reconnect(clientConnection: AsyncNametagServerConnection) async
     {
-        self.clientConnection = clientConnection
+        await self.clientsForClientPump.enqueue(element: clientConnection)
+        await self.clientsForServerPump.enqueue(element: clientConnection)
     }
     
     func updateBuffer(data: Data?)

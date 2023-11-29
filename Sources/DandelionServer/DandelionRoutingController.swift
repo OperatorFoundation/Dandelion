@@ -105,6 +105,6 @@ public class DandelionRoutingController
     
     func remove(route: NametagRouter) async
     {
-        await self.routes.removeValue(forKey: route.clientConnection.publicKey)
+        self.routes.removeValue(forKey: route.clientConnection.publicKey)
     }
 }
