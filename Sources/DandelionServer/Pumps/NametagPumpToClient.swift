@@ -12,18 +12,21 @@ import Dandelion
 import TransmissionAsync
 import TransmissionAsyncNametag
 
-
 class NametagPumpToClient
 {
     let targetToTransportQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.targetToTransportQueue")
     let router: NametagRouter
     let clients: AsyncQueue<AsyncNametagServerConnection>
+    let ackChannel: AsyncQueue<AckOrError>
+
     var pump: Task<(), Never>? = nil
 
-    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>)
+    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>, ackChannel: AsyncQueue<AckOrError>)
     {
         self.router = router
         self.clients = clients
+
+        self.ackChannel = ackChannel
 
         self.pump = Task
         {
@@ -38,8 +41,7 @@ class NametagPumpToClient
 
         while await router.state == .active
         {
-            let client = await self.clients.dequeue()
-            let dandelionProtocolConnection = DandelionProtocol(client.network)
+            let client = await self.clients.dequeue() // New client
 
             // Check to see if we have data waiting for the client from a previous session
             // Send it if we do and clear it out when we are done
@@ -47,6 +49,7 @@ class NametagPumpToClient
             {
                 do
                 {
+                    // Write unacked data to new client
                     print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
                     try await client.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
                     print("⚘ Target to Transport: Wrote \(dataWaiting.count) bytes of buffered data to the client connection.")
@@ -55,14 +58,29 @@ class NametagPumpToClient
                 {
                     print("⚘ Target to Transport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
                     await router.clientClosed()
-                    return
+                    continue // Whenever client I/O fails, we wait for a new client.
                 }
             }
+
+            let ackOrError = await self.ackChannel.dequeue()
+            switch ackOrError
+            {
+                case .ack:
+                    print("received ack from other pump")
+
+                case .error(let error):
+                    print("Error received from other pump: \(error)")
+                    await router.clientClosed()
+                    continue
+            }
+
+            // No error means we got an ack, proceed to main loop.
 
             while await router.state == .active
             {
                 do
                 {
+                    // Get new data from the server
                     let dataFromTarget = try await router.targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
 
                     guard dataFromTarget.count > 0 else
@@ -73,7 +91,6 @@ class NametagPumpToClient
                     }
 
                     print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
-
 
                     if await router.unAckedClientData == nil
                     {
@@ -94,13 +111,20 @@ class NametagPumpToClient
                             break
                         }
                     }
-                    else
+
+                    let ackOrError = await self.ackChannel.dequeue()
+                    switch ackOrError
                     {
-                        await router.unsentClientData.write(dataFromTarget)
-                        print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the unsentClientData buffer.")
+                        case .ack:
+                            print("received ack from other pump")
+
+                        case .error(let error):
+                            print("Error received from other pump: \(error)")
+                            await router.clientClosed()
+                            break // Go back to outer loop, where we wait for the next client.
                     }
 
-
+                    // No error means we got an ack, proceed to main loop.
                 }
                 catch (let error)
                 {

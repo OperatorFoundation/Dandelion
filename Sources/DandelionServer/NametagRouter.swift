@@ -50,8 +50,9 @@ actor NametagRouter
         await self.clientsForClientPump.enqueue(element: transportConnection)
         await self.clientsForServerPump.enqueue(element: transportConnection)
 
-        self.serverPump = NametagPumpToServer(router: self, clients: self.clientsForClientPump)
-        self.clientPump = NametagPumpToClient(router: self, clients: self.clientsForServerPump)
+        let ackChannel = AsyncQueue<AckOrError>()
+        self.clientPump = NametagPumpToClient(router: self, clients: self.clientsForServerPump, ackChannel: ackChannel)
+        self.serverPump = NametagPumpToServer(router: self, clients: self.clientsForClientPump, ackChannel: ackChannel)
     }
     
 //    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async

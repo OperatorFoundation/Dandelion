@@ -16,13 +16,16 @@ class NametagPumpToServer
 {
     let router: NametagRouter
     let clients: AsyncQueue<AsyncNametagServerConnection>
+    let ackChannel: AsyncQueue<AckOrError>
 
     var pump: Task<(), Never>? = nil
 
-    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>)
+    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>, ackChannel: AsyncQueue<AckOrError>)
     {
         self.router = router
         self.clients = clients
+
+        self.ackChannel = ackChannel
 
         self.pump = Task
         {
@@ -75,6 +78,8 @@ class NametagPumpToServer
                             }
 
                         case .ack:
+                            await self.ackChannel.enqueue(element: .ack)
+
                             if let unackedData = await router.unAckedClientData
                             {
                                 print("⚘ Transport to Target: ACKed \(unackedData.count)")
@@ -99,6 +104,7 @@ class NametagPumpToServer
                 catch (let error)
                 {
                     print("⚘ Transport to Target: Received no data from the transport on read. Error: \(error)")
+                    await ackChannel.enqueue(element: .error(error))
                     await router.clientClosed()
                     break
                 }
