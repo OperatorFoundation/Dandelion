@@ -13,7 +13,7 @@ import Straw
 import TransmissionAsync
 import TransmissionAsyncNametag
 
-actor NametagRouter
+public actor NametagRouter
 {
     static let maxReadSize = 2048 // Could be tuned through testing in the future
     
@@ -145,7 +145,7 @@ actor NametagRouter
 
 extension NametagRouter: Equatable
 {
-    static func == (lhs: NametagRouter, rhs: NametagRouter) -> Bool
+    static public func == (lhs: NametagRouter, rhs: NametagRouter) -> Bool
     {
         return lhs.uuid == rhs.uuid
     }
