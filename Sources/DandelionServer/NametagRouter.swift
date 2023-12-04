@@ -18,6 +18,7 @@ public actor NametagRouter
     public static let maxReadSize = 2048 // Could be tuned through testing in the future
 
     public let clientConnection: AsyncNametagServerConnection
+    public let targetConnection: AsyncConnection
 
     let uuid = UUID()
 
@@ -30,7 +31,6 @@ public actor NametagRouter
     let clientsForClientPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
     let clientsForServerPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
 
-    let targetConnection: AsyncConnection
     let controller: DandelionRoutingController
     var clientConnectionCount = 1
     var state: NametagRouterState = .active
