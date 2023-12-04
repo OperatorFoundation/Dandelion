@@ -15,8 +15,8 @@ import TransmissionAsyncNametag
 
 public actor NametagRouter
 {
-    static let maxReadSize = 2048 // Could be tuned through testing in the future
-    
+    public static let maxReadSize = 2048 // Could be tuned through testing in the future
+
     public let clientConnection: AsyncNametagServerConnection
 
     let uuid = UUID()
@@ -39,7 +39,7 @@ public actor NametagRouter
     
     // MARK: End Shared State
     
-    init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
+    public init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
     {
         self.controller = controller
         self.clientConnection = transportConnection
@@ -68,7 +68,7 @@ public actor NametagRouter
 //        self.clientPump = NametagPumpToClient(router: self)
 //    }
     
-    func clientConnected(connection: AsyncNametagServerConnection) async throws
+    public func clientConnected(connection: AsyncNametagServerConnection) async throws
     {
         switch state 
         {
@@ -94,7 +94,7 @@ public actor NametagRouter
         }
     }
     
-    func clientClosed() async
+    public func clientClosed() async
     {
         print("⚘ NametagRouter: clientClosed() called.")
         switch state
@@ -117,7 +117,7 @@ public actor NametagRouter
         await cleaner.cleanup()
     }
     
-    func serverClosed() async
+    public func serverClosed() async
     {
         print("⚘ NametagRouter: serverClosed() called.")
         state = .closing
@@ -131,13 +131,13 @@ public actor NametagRouter
         await cleaner.cleanup()
     }
     
-    func reconnect(clientConnection: AsyncNametagServerConnection) async
+    public func reconnect(clientConnection: AsyncNametagServerConnection) async
     {
         await self.clientsForClientPump.enqueue(element: clientConnection)
         await self.clientsForServerPump.enqueue(element: clientConnection)
     }
     
-    func updateBuffer(data: Data?)
+    public func updateBuffer(data: Data?)
     {
         self.unAckedClientData = data
     }
@@ -151,7 +151,7 @@ extension NametagRouter: Equatable
     }
 }
 
-enum NametagRouterState
+public enum NametagRouterState
 {
     case closing
     case paused
@@ -163,7 +163,7 @@ public enum NametagRouterError: Error
     case connectionWhileClosing
     case connectionWhileActive
     
-    var description: String
+    public var description: String
     {
         switch self 
         {
