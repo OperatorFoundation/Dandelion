@@ -74,9 +74,6 @@ public class DandelionRoutingController
             
             try await existingRoute.clientConnected(connection: clientConnection)
             print("⚘ An existing route has been updated.")
-            
-            // We don't already have this public key, save it to our routes
-//            routes[clientConnection.publicKey] = route
         }
         else
         {

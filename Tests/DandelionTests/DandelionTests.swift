@@ -1,12 +1,7 @@
 import XCTest
 @testable import Dandelion
 
-#if os(macOS) || os(iOS)
-import os.log
 import Logging
-#else
-import Logging
-#endif
 
 import KeychainCli
 import Nametag
@@ -61,7 +56,7 @@ final class DandelionTests: XCTestCase
         
         do
         {
-            let testLog = Logger(subsystem: "TestLogger", category: "main")
+            let testLog = Logger(label: "TestLogger")
             let nametagConnection = try NametagClientConnection(config: shadowConfig, keychain: keychain, logger: testLog)
             
             print("• Created a nametag connection.")
