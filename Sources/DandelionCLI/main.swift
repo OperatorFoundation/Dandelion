@@ -23,11 +23,8 @@ extension DandelionCLI
 {
     struct New: ParsableCommand
     {
-        @Argument(help: "The port that the server frontend listens on.")
-        var frontendPort: Int
-        
-        @Argument(help: "The port that the server backend listens on.")
-        var backendPort: Int
+        @Argument(help: "The port that the server listens on.")
+        var port: Int
         
         @Flag(help: "Whether or not to overwrite the setup if one already exists.")
         var overwrite = false
@@ -57,10 +54,8 @@ extension DandelionCLI
                 case .server:
                     print("A new server setup was requested.")
                     print("😶 This code has not yet been implemented!")
-                case .backendClient:
-                    print("🔺 A new backend client setup was requested. Try running a server instead!")
-                case .frontendClient:
-                    print("🔺 A new frontend client setup was requested. Try running a server instead!")
+                case .client:
+                    print("🔺 A new client setup was requested. Try running a server instead!")
             }
         }
     }
@@ -72,6 +67,5 @@ DandelionCLI.main()
 enum Petal: String, ExpressibleByArgument
 {
     case server
-    case backendClient
-    case frontendClient
+    case client
 }

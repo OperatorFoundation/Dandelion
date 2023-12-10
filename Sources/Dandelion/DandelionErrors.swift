@@ -13,6 +13,8 @@ public enum DandelionConfigError: Error
     case failedToSaveFile(filePath: String)
     case invalidJSON
     case invalidServerPort(serverAddress: String)
+    case failedToLoadKeychain(keychainURL: URL)
+    case failedToGeneratePrivateKey
     
     public var description: String
     {
@@ -26,6 +28,10 @@ public enum DandelionConfigError: Error
                 return "Error decoding JSON data."
             case .invalidServerPort(let serverAddress):
                 return "Error decoding Dandelion config data: invalid server port from address: \(serverAddress)"
+            case .failedToLoadKeychain(let keychainURL):
+                return "Error loading keychain at \(keychainURL.absoluteString)"
+            case .failedToGeneratePrivateKey:
+                return "Error generating a new private key."
         }
     }
 }

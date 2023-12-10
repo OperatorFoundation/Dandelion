@@ -22,10 +22,14 @@ let package = Package(
     ],
     
     dependencies: [
-        .package(url: "git@github.com:apple/swift-argument-parser.git", from: "1.2.3"),
-        .package(url: "git@github.com:OperatorFoundation/Keychain.git", branch: "release"),
-        .package(url: "git@github.com:OperatorFoundation/Nametag.git", branch: "release"),
-        .package(url: "git@github.com:OperatorFoundation/Transmission.git", branch: "release"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
+        .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/KeychainCli", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Straw", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     
     targets: [
@@ -34,21 +38,29 @@ let package = Package(
         .target(
             name: "Dandelion",
             dependencies: [
-                "Keychain",
+                "KeychainCli",
+                "Nametag",
+                "TransmissionAsync",
+                "Straw",
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
         .target(
             name: "DandelionServer",
             dependencies: [
                 "Dandelion",
                 "Keychain",
-                "Transmission",
-                .product(name: "TransmissionNametag", package: "Nametag"),
+                "Straw",
+                "TransmissionAsync",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
         .target(
             name: "DandelionClient",
             dependencies: [
                 "Dandelion",
                 "Keychain",
+                "ShadowSwift",
+                .product(name: "Logging", package: "swift-log")
         ]),
         .executableTarget(
             name: "DandelionCLI",
@@ -61,7 +73,14 @@ let package = Package(
                 "Dandelion",
                 "DandelionServer",
                 "DandelionClient",
-                "DandelionCLI"
+                "DandelionCLI",
+                "Keychain",
+                "KeychainCli",
+
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "TransmissionNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
         ]),
     ]
 )
