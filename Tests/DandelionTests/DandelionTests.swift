@@ -13,6 +13,9 @@ import TransmissionNametag
 
 final class DandelionTests: XCTestCase 
 {
+    let serverIP = "127.0.0.1"
+    let serverPort = 5771
+    
     func testConnectShadowToDandelionServer() async throws
     {
         let message = "Hello Dandelion."
@@ -88,8 +91,7 @@ final class DandelionTests: XCTestCase
     
     func testConnectOnceWriteThenRead() async throws
     {
-        let serverIP = "127.0.0.1"
-        let serverPort = 5771
+        
         let message = "Hello Dandelion."
         
         // Get a shadow config
@@ -147,8 +149,6 @@ final class DandelionTests: XCTestCase
     
     func testConnectToDandelionServerFirst() async throws
     {
-        let serverIP = "127.0.0.1"
-        let serverPort = 5771
         let message1 = "Hello"
         
         // Get a shadow config
@@ -204,8 +204,6 @@ final class DandelionTests: XCTestCase
     
     func testConnectToDandelionServerSecond() async throws
     {
-        let serverIP = "127.0.0.1"
-        let serverPort = 5771
         let message1 = "Hello"
         let message2 = " Dandelion."
         let testKeychainURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".keychainTest")
@@ -259,8 +257,6 @@ final class DandelionTests: XCTestCase
 
     func testConnectToDandelionServerTwiceAsync() async throws
     {
-        let serverIP = "127.0.0.1"
-        let serverPort = 5771
         let message1 = "Hello"
         let message2 = " Dandelion."
 
