@@ -38,7 +38,7 @@ class NametagPumpToServer
     {
         print("⚘ Transport to Target")
 
-        while await router.state == .active
+        while await router.state != .closing
         {
             print("⚘ NametagPumpToServer attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue()

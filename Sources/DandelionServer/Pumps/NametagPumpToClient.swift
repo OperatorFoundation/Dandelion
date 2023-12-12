@@ -39,7 +39,7 @@ class NametagPumpToClient
     {
         print("⚘ Target to Transport")
 
-        while await router.state == .active
+        while await router.state != .closing
         {
             print("⚘ NametagPumpToClient attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue() // New client
