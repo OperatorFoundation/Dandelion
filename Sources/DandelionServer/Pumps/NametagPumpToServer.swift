@@ -15,12 +15,12 @@ import TransmissionAsyncNametag
 class NametagPumpToServer
 {
     let router: NametagRouter
-    let clients: AsyncQueue<AsyncNametagServerConnection>
+    let clients: AsyncQueue<ClientConnection>
     let ackChannel: AsyncQueue<AckOrError>
 
     var pump: Task<(), Never>? = nil
 
-    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>, ackChannel: AsyncQueue<AckOrError>)
+    init(router: NametagRouter, clients: AsyncQueue<ClientConnection>, ackChannel: AsyncQueue<AckOrError>)
     {
         self.router = router
         self.clients = clients
@@ -44,7 +44,7 @@ class NametagPumpToServer
             let client = await self.clients.dequeue()
             print("⚘🍂 NametagPumpToServer deqeued a connection from clients.")
             
-            let dandelionProtocolConnection = DandelionProtocol(client.network)
+            let dandelionProtocolConnection = DandelionProtocol(client.connection.network)
 
             while await router.state == .active
             {
@@ -89,7 +89,7 @@ class NametagPumpToServer
                 catch (let error)
                 {
                     print("⚘🍂 Transport to Target: Received no data from the transport on read. Error: \(error)")
-                    await ackChannel.enqueue(element: .error(error))
+                    await ackChannel.enqueue(element: .error(error, client.uuid))
                     await router.clientClosed()
                     break
                 }

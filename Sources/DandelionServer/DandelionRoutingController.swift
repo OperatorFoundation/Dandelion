@@ -44,7 +44,8 @@ public class DandelionRoutingController
                 {
                     do
                     {
-                        try await self.handleConnection(clientConnection: transportConnection, targetHost: targetHost, targetPort: targetPort)
+                        let clientConnection = ClientConnection(connection: transportConnection)
+                        try await self.handleConnection(clientConnection: clientConnection, targetHost: targetHost, targetPort: targetPort)
                     }
                     catch (let clientConnectionError)
                     {
@@ -61,11 +62,11 @@ public class DandelionRoutingController
         }
     }
     
-    func handleConnection(clientConnection: AsyncNametagServerConnection, targetHost: String, targetPort: Int) async throws
+    func handleConnection(clientConnection: ClientConnection, targetHost: String, targetPort: Int) async throws
     {
         print("⚘ Dandelion listener accepted a transport connection.")
         
-        if let existingRoute = routes[clientConnection.publicKey]
+        if let existingRoute = routes[clientConnection.connection.publicKey]
         {
             print("⚘ Handling a connection from an existing route...")
             
@@ -87,12 +88,12 @@ public class DandelionRoutingController
                 print("⚘ A new route has been created.")
                 
                 // We don't already have this public key, save it to our routes
-                routes[clientConnection.publicKey] = route
+                routes[clientConnection.connection.publicKey] = route
             }
             catch (let error)
             {
                 print("⚘ RoutingController.handleListener: Failed to connect to the target server. Error: \(error)")
-                try await clientConnection.network.close()
+                try await clientConnection.connection.network.close()
                 return
             }
         }
@@ -100,6 +101,6 @@ public class DandelionRoutingController
     
     func remove(route: NametagRouter) async
     {
-        self.routes.removeValue(forKey: route.clientConnection.publicKey)
+        self.routes.removeValue(forKey: route.clientConnection.connection.publicKey)
     }
 }

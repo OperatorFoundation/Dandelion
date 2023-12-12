@@ -10,5 +10,5 @@ import Foundation
 public enum AckOrError
 {
     case ack
-    case error(Error)
+    case error(Error, UUID)
 }

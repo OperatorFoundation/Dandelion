@@ -17,7 +17,7 @@ public actor NametagRouter
 {
     public static let maxReadSize = 2048 // Could be tuned through testing in the future
 
-    public let clientConnection: AsyncNametagServerConnection
+    public let clientConnection: ClientConnection
     public let targetConnection: AsyncConnection
 
     let uuid = UUID()
@@ -28,8 +28,8 @@ public actor NametagRouter
     var connectionReaper: NametagConnectionReaper? = nil
     
     // MARK: Shared State
-    let clientsForClientPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
-    let clientsForServerPump: AsyncQueue<AsyncNametagServerConnection> = AsyncQueue<AsyncNametagServerConnection>()
+    let clientsForClientPump: AsyncQueue<ClientConnection> = AsyncQueue<ClientConnection>()
+    let clientsForServerPump: AsyncQueue<ClientConnection> = AsyncQueue<ClientConnection>()
 
     let controller: DandelionRoutingController
     var clientConnectionCount = 1
@@ -37,7 +37,7 @@ public actor NametagRouter
     
     // MARK: End Shared State
     
-    public init(controller: DandelionRoutingController, transportConnection: AsyncNametagServerConnection, targetConnection: AsyncConnection) async
+    public init(controller: DandelionRoutingController, transportConnection: ClientConnection, targetConnection: AsyncConnection) async
     {
         self.controller = controller
         self.clientConnection = transportConnection
@@ -66,14 +66,14 @@ public actor NametagRouter
 //        self.clientPump = NametagPumpToClient(router: self)
 //    }
     
-    public func clientConnected(connection: AsyncNametagServerConnection) async throws
+    public func clientConnected(connection: ClientConnection) async throws
     {
         switch state 
         {
             case .closing:
                 print("⚘ Client connected while in the router closing state, connections cannot be accepted. This is an error, closing the client connection.")
                 self.state = .closing
-                try await connection.network.close()
+                try await connection.connection.network.close()
                 throw NametagRouterError.connectionWhileClosing
                 
             case .paused:
@@ -90,7 +90,7 @@ public actor NametagRouter
             case .active:
                 print("⚘ Client connected while in the active state. This is an error, closing the client connection and setting this router state to closing.")
                 self.state = .closing
-                try await connection.network.close()
+                try await connection.connection.network.close()
                 throw NametagRouterError.connectionWhileActive
         }
     }

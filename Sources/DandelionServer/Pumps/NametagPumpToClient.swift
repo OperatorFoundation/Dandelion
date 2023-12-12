@@ -16,12 +16,12 @@ class NametagPumpToClient
 {
     let targetToTransportQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.targetToTransportQueue")
     let router: NametagRouter
-    let clients: AsyncQueue<AsyncNametagServerConnection>
+    let clients: AsyncQueue<ClientConnection>
     let ackChannel: AsyncQueue<AckOrError>
 
     var pump: Task<(), Never>? = nil
 
-    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>, ackChannel: AsyncQueue<AckOrError>)
+    init(router: NametagRouter, clients: AsyncQueue<ClientConnection>, ackChannel: AsyncQueue<AckOrError>)
     {
         self.router = router
         self.clients = clients
@@ -108,10 +108,10 @@ class NametagPumpToClient
         print("⚘🍃 Target to Transport: loop finished.")
     }
     
-    func sendAndAckWait(client: AsyncNametagServerConnection, dataToSend: Data) async throws
+    func sendAndAckWait(client: ClientConnection, dataToSend: Data) async throws
     {
         print("⚘ Target to Transport: Writing buffered data (\(dataToSend.count) bytes) to the client connection.")
-        try await client.network.writeWithLengthPrefix(dataToSend, DandelionProtocol.lengthPrefix)
+        try await client.connection.network.writeWithLengthPrefix(dataToSend, DandelionProtocol.lengthPrefix)
         print("⚘ Target to Transport: Wrote \(dataToSend.count) bytes of buffered data to the client connection.")
         
         print("⚘🍃 Target to Transport: attempting to dequeue from the ack channel.")
@@ -123,9 +123,12 @@ class NametagPumpToClient
             case .ack:
                 print("⚘🍃 received ack from other pump")
 
-            case .error(let error):
-                print("⚘🍃 Error received from other pump: \(error)")
-                throw error
+            case .error(let error, let uuid):
+                if uuid == client.uuid
+                {
+                    print("⚘🍃 Error received from other pump: \(error)")
+                    throw error
+                }
         }
     }
     
