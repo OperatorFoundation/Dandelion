@@ -71,7 +71,9 @@ class NametagPumpToServer
 
                             do
                             {
+                                print("⚘⏛⚘ Transport to Target: attempting to write \(dataFromTransport.count) bytes to the target connection.")
                                 try await router.targetConnection.write(dataFromTransport)
+                                print("⚘⏛⚘ Transport to Target: Wrote \(dataFromTransport.count) bytes to the target connection.")
                             }
                             catch (let error)
                             {

@@ -63,15 +63,18 @@ class NametagPumpToClient
                     continue // Whenever client I/O fails, we wait for a new client.
                 }
             }
-
+            
+            print("⚘⏛⚘ Target to Transport: attempting to dequeue from the ack channel.")
             let ackOrError = await self.ackChannel.dequeue()
+            print("⚘⏛⚘ Target to Transport: dequeued from the ack channel.")
+            
             switch ackOrError
             {
                 case .ack:
-                    print("received ack from other pump")
+                    print("⚘⏛⚘ received ack from other pump")
 
                 case .error(let error):
-                    print("Error received from other pump: \(error)")
+                    print("⚘⏛⚘ Error received from other pump: \(error)")
                     await router.clientClosed()
                     continue
             }
@@ -82,6 +85,8 @@ class NametagPumpToClient
             {
                 do
                 {
+                    print("⚘⏛⚘ Target to Transport: attempting to read from the target connection.")
+                    
                     // Get new data from the server
                     let dataFromTarget = try await router.targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
 
