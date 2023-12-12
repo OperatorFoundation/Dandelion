@@ -133,12 +133,6 @@ public actor NametagRouter
         await cleaner.cleanup()
     }
     
-    public func reconnect(clientConnection: AsyncNametagServerConnection) async
-    {
-        await self.clientsForClientPump.enqueue(element: clientConnection)
-        await self.clientsForServerPump.enqueue(element: clientConnection)
-    }
-    
     public func updateBuffer(data: Data?)
     {
         self.unAckedClientData = data
