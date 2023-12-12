@@ -55,6 +55,21 @@ class NametagPumpToClient
                     print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
                     try await client.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
                     print("⚘ Target to Transport: Wrote \(dataWaiting.count) bytes of buffered data to the client connection.")
+                    
+                    print("⚘⏛⚘ Target to Transport: attempting to dequeue from the ack channel.")
+                    let ackOrError = await self.ackChannel.dequeue()
+                    print("⚘⏛⚘ Target to Transport: dequeued from the ack channel.")
+                    
+                    switch ackOrError
+                    {
+                        case .ack:
+                            print("⚘⏛⚘ received ack from other pump")
+
+                        case .error(let error):
+                            print("⚘⏛⚘ Error received from other pump: \(error)")
+                            await router.clientClosed()
+                            continue
+                    }
                 }
                 catch (let error)
                 {
@@ -63,23 +78,6 @@ class NametagPumpToClient
                     continue // Whenever client I/O fails, we wait for a new client.
                 }
             }
-            
-            print("⚘⏛⚘ Target to Transport: attempting to dequeue from the ack channel.")
-            let ackOrError = await self.ackChannel.dequeue()
-            print("⚘⏛⚘ Target to Transport: dequeued from the ack channel.")
-            
-            switch ackOrError
-            {
-                case .ack:
-                    print("⚘⏛⚘ received ack from other pump")
-
-                case .error(let error):
-                    print("⚘⏛⚘ Error received from other pump: \(error)")
-                    await router.clientClosed()
-                    continue
-            }
-
-            // No error means we got an ack, proceed to main loop.
 
             while await router.state == .active
             {
