@@ -30,20 +30,20 @@ class NametagPumpToClient
 
         self.pump = Task
         {
-            print("⚘ NametagPumpToClient: calling transferTargetToTransport()")
+            print("⚘⏛⚘ NametagPumpToClient: calling transferTargetToTransport()")
             await self.transferTargetToTransport()
         }
     }
     
     func transferTargetToTransport() async
     {
-        print("⚘ Target to Transport")
+        print("⚘⏛⚘ Target to Transport")
 
         while await router.state != .closing
         {
-            print("⚘ NametagPumpToClient attempting to deqeue a connection from clients.")
+            print("⚘⏛⚘ NametagPumpToClient attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue() // New client
-            print("⚘ NametagPumpToClient deqeued a connection from clients.")
+            print("⚘⏛⚘ NametagPumpToClient deqeued a connection from clients.")
 
             // Check to see if we have data waiting for the client from a previous session
             // Send it if we do and clear it out when we are done
@@ -88,11 +88,11 @@ class NametagPumpToClient
                     guard dataFromTarget.count > 0 else
                     {
                         // Skip to the next round
-                        print("⚘ Target to Transport: Received 0 bytes while reading from the target connection.")
+                        print("⚘⏛⚘ Target to Transport: Received 0 bytes while reading from the target connection.")
                         continue
                     }
 
-                    print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
+                    print("⚘⏛⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
 
                     if await router.unAckedClientData == nil
                     {
@@ -100,15 +100,15 @@ class NametagPumpToClient
 
                         do
                         {
-                            print("⚘ Target to Transport: Writing dataFromTarget (\(dataFromTarget.count) bytes) to the client connection.")
+                            print("⚘⏛⚘ Target to Transport: Writing dataFromTarget (\(dataFromTarget.count) bytes) to the client connection.")
 
                             try await client.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
 
-                            print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
+                            print("⚘⏛⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
                         }
                         catch (let error)
                         {
-                            print("⚘ Target to Transport: Received an error while trying to write to the client. Error: \(error)")
+                            print("⚘⏛⚘ Target to Transport: Received an error while trying to write to the client. Error: \(error)")
                             await router.clientClosed()
                             break
                         }
@@ -118,10 +118,10 @@ class NametagPumpToClient
                     switch ackOrError
                     {
                         case .ack:
-                            print("received ack from other pump")
+                            print("⚘⏛⚘ ack from other pump")
 
                         case .error(let error):
-                            print("Error received from other pump: \(error)")
+                            print("⚘⏛⚘ received from other pump: \(error)")
                             await router.clientClosed()
                             break // Go back to outer loop, where we wait for the next client.
                     }
@@ -139,7 +139,7 @@ class NametagPumpToClient
             }
         }
 
-        print("⚘ Target to Transport: loop finished.")
+        print("⚘⚘⏛⚘⚘ Target to Transport: loop finished.")
     }
     
     public func close()
