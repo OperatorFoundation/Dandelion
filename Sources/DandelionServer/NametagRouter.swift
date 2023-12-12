@@ -81,7 +81,9 @@ public actor NametagRouter
             case .paused:
                 print("⚘ Client connected while in the paused state. Setting this router state to active.")
                 await self.clientsForClientPump.enqueue(element: connection)
+                print("⚘ Enqeued a connection with clientsForClientPump.")
                 await self.clientsForServerPump.enqueue(element: connection)
+                print("⚘ Enqeued a connection with clientsForServerPump.")
 
                 self.state = .active
                 self.connectionReaper = nil

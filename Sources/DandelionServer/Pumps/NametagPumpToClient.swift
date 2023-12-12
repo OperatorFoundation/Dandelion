@@ -41,7 +41,9 @@ class NametagPumpToClient
 
         while await router.state == .active
         {
+            print("⚘ NametagPumpToClient attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue() // New client
+            print("⚘ NametagPumpToClient deqeued a connection from clients.")
 
             // Check to see if we have data waiting for the client from a previous session
             // Send it if we do and clear it out when we are done

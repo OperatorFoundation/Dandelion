@@ -40,7 +40,10 @@ class NametagPumpToServer
 
         while await router.state == .active
         {
+            print("⚘ NametagPumpToServer attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue()
+            print("⚘ NametagPumpToServer deqeued a connection from clients.")
+            
             let dandelionProtocolConnection = DandelionProtocol(client.network)
 
             while await router.state == .active
