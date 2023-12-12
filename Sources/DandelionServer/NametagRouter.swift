@@ -34,8 +34,6 @@ public actor NametagRouter
     let controller: DandelionRoutingController
     var clientConnectionCount = 1
     var state: NametagRouterState = .active
-    var unAckedClientData: Data? = nil
-    var unsentClientData = Straw()
     
     // MARK: End Shared State
     
@@ -134,10 +132,6 @@ public actor NametagRouter
         await cleaner.cleanup()
     }
     
-    public func updateBuffer(data: Data?)
-    {
-        self.unAckedClientData = data
-    }
 }
 
 extension NametagRouter: Equatable

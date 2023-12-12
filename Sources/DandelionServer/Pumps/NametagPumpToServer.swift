@@ -84,26 +84,6 @@ class NametagPumpToServer
 
                         case .ack:
                             await self.ackChannel.enqueue(element: .ack)
-
-                            if let unackedData = await router.unAckedClientData
-                            {
-                                print("⚘🍂 Transport to Target: ACKed \(unackedData.count)")
-                            }
-                            else
-                            {
-                                print("⚘🍂 Transport to Target: received an ACK from the client, but the unAcked buffer is nil. ")
-                            }
-                            await router.updateBuffer(data: nil) // Clear the unACKed data
-
-                            if await router.unsentClientData.count > 0
-                            {
-                                let dataToSend = try await router.unsentClientData.read()
-                                await router.updateBuffer(data: dataToSend)
-
-                                print("⚘🍂 Transport to Target: Writing buffered data (\(dataToSend.count) bytes) to the client connection.")
-                                try await client.network.write(dataToSend)
-                                print("⚘🍂 Transport to Target: Wrote \(dataToSend.count) bytes of buffered data to the client connection.")
-                            }
                     }
                 }
                 catch (let error)
