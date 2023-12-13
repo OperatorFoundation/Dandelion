@@ -46,10 +46,10 @@ public actor NametagRouter
 
         self.cleaner = NametagRouterCleanup(router: self)
         
-        print("⚘ Enqueuing a transport connection if the clientsForClientPump.")
+        print("⚘ Enqueuing a transport connection in the clientsForClientPump.")
         await self.clientsForClientPump.enqueue(element: transportConnection)
         
-        print("⚘ Enqueuing a transport connection if the clientsForServerPump.")
+        print("⚘ Enqueuing a transport connection in the clientsForServerPump.")
         await self.clientsForServerPump.enqueue(element: transportConnection)
         
         print("⚘ Creating an ACK channel.")
