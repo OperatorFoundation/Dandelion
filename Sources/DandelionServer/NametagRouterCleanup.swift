@@ -25,7 +25,7 @@ class NametagRouterCleanup
                 
                 do
                 {
-                    try await router.clientConnection.network.close()
+                    try await router.clientConnection.connection.network.close()
                 }
                 catch (let error)
                 {
@@ -47,7 +47,7 @@ class NametagRouterCleanup
                 print("⚘ 🧼 Route cleanup paused...")
                 do
                 {
-                    try await router.clientConnection.network.close()
+                    try await router.clientConnection.connection.network.close()
                 }
                 catch (let error)
                 {

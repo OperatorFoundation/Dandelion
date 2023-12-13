@@ -16,12 +16,12 @@ class NametagPumpToClient
 {
     let targetToTransportQueue = DispatchQueue(label: "ShapeshifterDispatcherSwift.targetToTransportQueue")
     let router: NametagRouter
-    let clients: AsyncQueue<AsyncNametagServerConnection>
+    let clients: AsyncQueue<ClientConnection>
     let ackChannel: AsyncQueue<AckOrError>
 
     var pump: Task<(), Never>? = nil
 
-    init(router: NametagRouter, clients: AsyncQueue<AsyncNametagServerConnection>, ackChannel: AsyncQueue<AckOrError>)
+    init(router: NametagRouter, clients: AsyncQueue<ClientConnection>, ackChannel: AsyncQueue<AckOrError>)
     {
         self.router = router
         self.clients = clients
@@ -30,114 +30,106 @@ class NametagPumpToClient
 
         self.pump = Task
         {
-            print("⚘ NametagPumpToClient: calling transferTargetToTransport()")
+            print("⚘🍃 NametagPumpToClient: calling transferTargetToTransport()")
             await self.transferTargetToTransport()
         }
     }
     
     func transferTargetToTransport() async
     {
-        print("⚘ Target to Transport")
+        print("⚘🍃 Target to Transport")
+        var dataFromTarget: Data? = nil
 
-        while await router.state == .active
+        while await router.state != .closing
         {
+            print("⚘🍃 NametagPumpToClient attempting to deqeue a connection from clients.")
             let client = await self.clients.dequeue() // New client
-
-            // Check to see if we have data waiting for the client from a previous session
-            // Send it if we do and clear it out when we are done
-            if let dataWaiting = await router.unAckedClientData
-            {
-                do
-                {
-                    // Write unacked data to new client
-                    print("⚘ Target to Transport: Writing buffered data (\(dataWaiting.count) bytes) to the client connection.")
-                    try await client.network.writeWithLengthPrefix(dataWaiting, DandelionProtocol.lengthPrefix)
-                    print("⚘ Target to Transport: Wrote \(dataWaiting.count) bytes of buffered data to the client connection.")
-                }
-                catch (let error)
-                {
-                    print("⚘ Target to Transport: Unable to send target data to the transport connection. The connection was likely closed. Error: \(error)")
-                    await router.clientClosed()
-                    continue // Whenever client I/O fails, we wait for a new client.
-                }
-            }
-
-            let ackOrError = await self.ackChannel.dequeue()
-            switch ackOrError
-            {
-                case .ack:
-                    print("received ack from other pump")
-
-                case .error(let error):
-                    print("Error received from other pump: \(error)")
-                    await router.clientClosed()
-                    continue
-            }
-
-            // No error means we got an ack, proceed to main loop.
-
+            print("⚘🍃 NametagPumpToClient deqeued a connection from clients.")
+            
             while await router.state == .active
             {
                 do
                 {
-                    // Get new data from the server
-                    let dataFromTarget = try await router.targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
-
-                    guard dataFromTarget.count > 0 else
+                    if let dataWaiting = dataFromTarget
                     {
-                        // Skip to the next round
-                        print("⚘ Target to Transport: Received 0 bytes while reading from the target connection.")
-                        continue
-                    }
-
-                    print("⚘ Target to Transport: Received \(dataFromTarget.count) bytes while reading from the target connection.")
-
-                    if await router.unAckedClientData == nil
-                    {
-                        await router.updateBuffer(data: dataFromTarget)
-
                         do
                         {
-                            print("⚘ Target to Transport: Writing dataFromTarget (\(dataFromTarget.count) bytes) to the client connection.")
-
-                            try await client.network.writeWithLengthPrefix(dataFromTarget, DandelionProtocol.lengthPrefix)
-
-                            print("⚘ Target to Transport: Wrote \(dataFromTarget.count) bytes to the client connection.")
+                            try await sendAndAckWait(client: client, dataToSend: dataWaiting)
+                            dataFromTarget = nil
                         }
-                        catch (let error)
+                        catch
                         {
-                            print("⚘ Target to Transport: Received an error while trying to write to the client. Error: \(error)")
                             await router.clientClosed()
                             break
                         }
                     }
-
-                    let ackOrError = await self.ackChannel.dequeue()
-                    switch ackOrError
+                    else
                     {
-                        case .ack:
-                            print("received ack from other pump")
-
-                        case .error(let error):
-                            print("Error received from other pump: \(error)")
+                        // We don't have any data to send
+                        // Let's try getting some
+                        print("⚘🍃 Target to Transport: attempting to read from the target connection.")
+                        
+                        // Get new data from the server
+                        let newData = try await router.targetConnection.readMinMaxSize(1, NametagRouter.maxReadSize)
+                        
+                        guard newData.count > 0 else
+                        {
+                            // Skip to the next round
+                            print("⚘🍃 Target to Transport: Received 0 bytes while reading from the target connection.")
+                            continue
+                        }
+                        
+                        print("⚘🍃 Target to Transport: Received \(newData.count) bytes while reading from the target connection.")
+                        
+                        do
+                        {
+                            try await sendAndAckWait(client: client, dataToSend: newData)
+                        }
+                        catch
+                        {
+                            // Save the data we didn't get an ack for so we can try again in the next round
+                            dataFromTarget = newData
                             await router.clientClosed()
-                            break // Go back to outer loop, where we wait for the next client.
+                            break
+                        }
                     }
-
-                    // No error means we got an ack, proceed to main loop.
+                    
                 }
                 catch (let error)
                 {
-                    print("⚘ Target to Transport: Received no data from the target on read. Error: \(error)")
+                    print("⚘🍃 Target to Transport: Unable to read data from the target. Error: \(error)")
                     await router.serverClosed()
-                    break
                 }
-
-                await Task.yield() // Take turns
             }
+            
+            await Task.yield() // Take turns
         }
 
-        print("⚘ Target to Transport: loop finished.")
+        print("⚘🍃 Target to Transport: loop finished.")
+    }
+    
+    func sendAndAckWait(client: ClientConnection, dataToSend: Data) async throws
+    {
+        print("⚘ Target to Transport: Writing buffered data (\(dataToSend.count) bytes) to the client connection.")
+        try await client.connection.network.writeWithLengthPrefix(dataToSend, DandelionProtocol.lengthPrefix)
+        print("⚘ Target to Transport: Wrote \(dataToSend.count) bytes of buffered data to the client connection.")
+        
+        print("⚘🍃 Target to Transport: attempting to dequeue from the ack channel.")
+        let ackOrError = await self.ackChannel.dequeue()
+        print("⚘🍃 Target to Transport: dequeued from the ack channel.")
+        
+        switch ackOrError
+        {
+            case .ack:
+                print("⚘🍃 received ack from other pump")
+
+            case .error(let error, let uuid):
+                if uuid == client.uuid
+                {
+                    print("⚘🍃 Error received from other pump: \(error)")
+                    throw error
+                }
+        }
     }
     
     public func close()
