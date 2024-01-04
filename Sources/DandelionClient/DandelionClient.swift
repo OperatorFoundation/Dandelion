@@ -27,15 +27,14 @@ public class DandelionClient
         self.keychainLabel = keychainLabel
     }
     
-    public init?(keychainURL: URL, keychainLabel: String)
+    public convenience init?(keychainURL: URL, keychainLabel: String)
     {
         guard let keychain = Keychain(baseDirectory: keychainURL) else
         {
             return nil
         }
         
-        self.keychain = keychain
-        self.keychainLabel = keychainLabel
+        self.init(keychain: keychain, keychainLabel: keychainLabel)
     }
     
     public func loadTransportConfigs(from configDirectory: URL) -> Bool
