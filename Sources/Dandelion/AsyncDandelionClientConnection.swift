@@ -170,8 +170,10 @@ public class DandelionClientWritable: Writable
 
 public enum AsyncDandelionClientConnectionError: Error
 {
+    case connectionClosed
+    case connectionFailed
+    case invalidTransportConfig
     case keychainError
     case nametagError
-    case connectionClosed
     case unimplemented
 }
