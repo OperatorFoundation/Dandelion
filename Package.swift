@@ -24,6 +24,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
         .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
+        .package(url: "https://github.com/OperatorFoundation/Chord.git", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/KeychainCli", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "main"),
@@ -47,6 +48,7 @@ let package = Package(
         .target(
             name: "DandelionServer",
             dependencies: [
+                "Chord",
                 "Dandelion",
                 "Keychain",
                 "Straw",
