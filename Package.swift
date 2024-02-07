@@ -31,6 +31,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/Straw", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "release"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsyncNametag", branch: "release"),
     ],
     
     targets: [
@@ -43,7 +44,7 @@ let package = Package(
                 "Nametag",
                 "TransmissionAsync",
                 "Straw",
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
         .target(
             name: "DandelionServer",
@@ -54,7 +55,7 @@ let package = Package(
                 "Straw",
                 "TransmissionAsync",
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
         .target(
             name: "DandelionClient",
@@ -82,7 +83,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "TransmissionNametag", package: "Nametag"),
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
     ]
 )
