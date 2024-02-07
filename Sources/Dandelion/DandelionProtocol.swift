@@ -77,25 +77,29 @@ public class DandelionProtocol
     {
         self.connection = connection
     }
-
+    
+    // Server side only
     public func readMessage() async throws -> DandelionProtocolMessage
     {
         let data = try await self.connection.readWithLengthPrefix(prefixSizeInBits: Self.lengthPrefix)
         return try DandelionProtocolMessage(data: data)
     }
-
+    
+    // Client side
     public func write(data: Data) async throws
     {
         let message = DandelionProtocolMessage.write(data)
         try await self.connection.writeWithLengthPrefix(message.data, Self.lengthPrefix)
     }
-
+    
+    // Client side
     public func ack() async throws
     {
         let message = DandelionProtocolMessage.ack
         try await self.connection.writeWithLengthPrefix(message.data, Self.lengthPrefix)
     }
-
+    
+    // Client side
     public func close() async throws
     {
         let message = DandelionProtocolMessage.close

@@ -55,8 +55,6 @@ final class DandelionTests: XCTestCase
     
     func testConnectOnceWriteThenRead() async throws
     {
-        let message = "Hello Dandelion."
-        
         guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
         {
             XCTFail()
@@ -69,14 +67,14 @@ final class DandelionTests: XCTestCase
             
             print("• Created an AsyncDandelionConnection connection.")
             
-            try await connection.write(message.data)
+            try await connection.write(completeMessage.data)
             print("• Wrote some data to the AsyncDandelionConnection connection.")
 
             
             let readResult = try await connection.readSize(16)
             
             print("• Read from the AsyncDandelionConnection connection: \(readResult.string)")
-            XCTAssertEqual(message, readResult.string)
+            XCTAssertEqual(completeMessage, readResult.string)
         }
         catch (let error)
         {
