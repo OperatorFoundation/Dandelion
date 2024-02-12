@@ -29,7 +29,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/KeychainCli", branch: "1.0.0"),
         .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "0.1.1"),
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "release"),
-        .package(url: "https://github.com/OperatorFoundation/Straw", branch: "release"),
+        .package(url: "https://github.com/OperatorFoundation/Straw", branch: "1.0.0"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsyncNametag", branch: "release"),
     ],
