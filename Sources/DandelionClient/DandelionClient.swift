@@ -78,7 +78,7 @@ public class DandelionClient
     
     public func connectShadowToDandelionServer(shadowConfigURL: URL) async throws -> AsyncDandelionClientConnection
     {
-        guard let shadowConfig = ShadowConfig.ShadowClientConfig(path: shadowConfigURL.path()) else
+        guard let shadowConfig = ShadowConfig.ShadowClientConfig(path: shadowConfigURL.path) else
         {
             throw AsyncDandelionClientConnectionError.invalidTransportConfig
         }
