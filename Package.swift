@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Dandelion",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -24,12 +24,14 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
         .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
+        .package(url: "https://github.com/OperatorFoundation/Chord.git", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/KeychainCli", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Nametag", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Straw", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsyncNametag", branch: "main"),
     ],
     
     targets: [
@@ -42,17 +44,18 @@ let package = Package(
                 "Nametag",
                 "TransmissionAsync",
                 "Straw",
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
         .target(
             name: "DandelionServer",
             dependencies: [
+                "Chord",
                 "Dandelion",
                 "Keychain",
                 "Straw",
                 "TransmissionAsync",
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
         .target(
             name: "DandelionClient",
@@ -60,7 +63,8 @@ let package = Package(
                 "Dandelion",
                 "Keychain",
                 "ShadowSwift",
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "TransmissionNametag", package: "Nametag"),
         ]),
         .executableTarget(
             name: "DandelionCLI",
@@ -80,7 +84,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "TransmissionNametag", package: "Nametag"),
-                .product(name: "TransmissionAsyncNametag", package: "Nametag"),
+                .product(name: "TransmissionAsyncNametag", package: "TransmissionAsyncNametag"),
         ]),
     ]
 )

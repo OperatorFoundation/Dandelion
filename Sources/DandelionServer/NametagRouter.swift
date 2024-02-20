@@ -39,18 +39,29 @@ public actor NametagRouter
     
     public init(controller: DandelionRoutingController, transportConnection: ClientConnection, targetConnection: AsyncConnection) async
     {
+        print("⚘ Initializing a NametagRouter.")
         self.controller = controller
         self.clientConnection = transportConnection
         self.targetConnection = targetConnection
 
         self.cleaner = NametagRouterCleanup(router: self)
-
+        
+        print("⚘ Enqueuing a transport connection in the clientsForClientPump.")
         await self.clientsForClientPump.enqueue(element: transportConnection)
+        
+        print("⚘ Enqueuing a transport connection in the clientsForServerPump.")
         await self.clientsForServerPump.enqueue(element: transportConnection)
-
+        
+        print("⚘ Creating an ACK channel.")
         let ackChannel = AsyncQueue<AckOrError>()
+        
+        print("⚘ Creating a client pump.")
         self.clientPump = NametagPumpToClient(router: self, clients: self.clientsForServerPump, ackChannel: ackChannel)
+        
+        print("⚘ Creating a server pump.")
         self.serverPump = NametagPumpToServer(router: self, clients: self.clientsForClientPump, ackChannel: ackChannel)
+        
+        print("⚘ NametagRouter initialization complete.")
     }
     
 //    init(transportConnection: AsyncNametagServerConnection, router: NametagRouter) async
