@@ -51,8 +51,11 @@ public class DandelionServer
     
     public func accept() async throws -> AsyncNametagServerConnection
     {
+        print("⚘ DandelionServer accept() called")
         let connection = try await listener.accept()
+        print("⚘ DandelionServer accepted a connection.")
         let authenticatedConnection = try await AsyncNametagServerConnection(connection, logger)
+        print("⚘ DandelionServer authenticated a connection.")
         
         return authenticatedConnection
     }
