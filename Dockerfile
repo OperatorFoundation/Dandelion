@@ -6,7 +6,7 @@ RUN git clone https://github.com/OperatorFoundation/Dandelion
 
 WORKDIR /root/Dandelion
 
-RUN swift pull origin main
+RUN git pull origin main
 RUN swift package reset
 RUN rm -rf Package.resolved .build .swiftpm
 RUN swift build
