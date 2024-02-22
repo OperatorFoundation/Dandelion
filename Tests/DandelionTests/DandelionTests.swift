@@ -24,7 +24,7 @@ final class DandelionTests: XCTestCase
     let message2 = " Dandelion."
     let completeMessage = "Hello Dandelion."
     
-    func testConnectShadowToDandelionServer() async throws
+    func testShadowToDandelionServerConnectOnceWriteThenRead() async throws
     {
         guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
         {
@@ -51,6 +51,100 @@ final class DandelionTests: XCTestCase
             XCTFail()
             return
         }
+    }
+    
+    func testConnectShadowToToDandelionServerFirst() async throws
+    {
+        guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
+        {
+            XCTFail()
+            return
+        }
+        
+        do
+        {
+            let dandelionShadowConnection = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            print("• Created a Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection.write(message1.data)
+            print("• Wrote some data to the Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection.close()
+        }
+        catch (let error)
+        {
+            print("Failed to create a Dandelion Shadow connection: \(error)")
+            XCTFail()
+            return
+        }
+    }
+    
+    func testConnectShadowToDandelionServerSecond() async throws
+    {
+        guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
+        {
+            XCTFail()
+            return
+        }
+        
+        do
+        {
+            let dandelionShadowConnection = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            print("• Created a Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection.write(message2.data)
+            print("• Wrote some data to the Dandelion Shadow connection.")
+                        
+            let readResult = try await dandelionShadowConnection.readSize(16)
+            print("• Read from the Dandelion Shadow connection: \(readResult.string)")
+            
+            XCTAssertEqual(completeMessage, readResult.string)
+        }
+        catch (let error)
+        {
+            print("Failed to create a Dandelion Shadow connection: \(error)")
+            XCTFail()
+            return
+        }
+    }
+    
+    func testConnectShadowToDandelionServerTwice() async throws
+    {
+        guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
+        {
+            XCTFail()
+            return
+        }
+        
+        do
+        {
+            let dandelionShadowConnection = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            print("• Created a Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection.write(message1.data)
+            print("• Wrote some data to the Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection.close()
+            try await Task.sleep(for: .seconds(1))
+            
+            let dandelionShadowConnection2 = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            print("• Created a second Dandelion Shadow connection.")
+            
+            try await dandelionShadowConnection2.write(message2.data)
+            print("• Wrote smore data to the Dandelion Shadow connection.")
+                        
+            let readResult = try await dandelionShadowConnection2.readSize(16)
+            print("• Read from the Dandelion Shadow connection: \(readResult.string)")
+            
+            XCTAssertEqual(completeMessage, readResult.string)
+        }
+        catch (let error)
+        {
+            print("Failed to create a Dandelion Shadow connection: \(error)")
+            XCTFail()
+            return
+        }
+        
     }
     
     func testConnectOnceWriteThenRead() async throws
@@ -143,7 +237,7 @@ final class DandelionTests: XCTestCase
         }
     }
     
-    func testConnectToDandelionServerTwiceAsync() async throws
+    func testConnectToDandelionServerTwice() async throws
     {
         guard let dandelionClient = DandelionClient(keychainURL: testKeychainURL, keychainLabel: keychainLabel) else
         {
@@ -160,9 +254,7 @@ final class DandelionTests: XCTestCase
             print("• Wrote some data to the AsyncDandelionConnection connection.")
 
             try await connection.close()
-            
-            // FIXME: Sleep shouldn't be necessary
-            try await Task.sleep(for: .seconds(5))
+            try await Task.sleep(for: .seconds(1))
 
             // Second connection
             let connection2 = try await dandelionClient.connectToDandelionServer(serverIP: serverIP, serverPort: serverPort)
@@ -183,100 +275,5 @@ final class DandelionTests: XCTestCase
             return
         }
     }
-    
-//    func testConnectToDandelionServerFirst() async throws
-//    {
-//        guard let keychain = Keychain(baseDirectory: testKeychainURL) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        let publicKey = privateSigningKey.publicKey
-//        
-//        print("• Initializing nametag. Public key is \(publicKey.data!.count) bytes, expected public key size is 65 bytes.")
-//        
-//        guard let _ = Nametag(keychain: keychain) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        print("• Created a Nametag instance.")
-//        
-//        do
-//        {
-//            let connection = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
-//            
-//            print("• Created an AsyncDandelionConnection connection.")
-//            
-//            try await connection.write(message1.data)
-//            print("• Wrote some data to the AsyncDandelionConnection connection.")
-//
-//            
-//            try await connection.close()
-//            try await Task.sleep(for: .seconds(10))
-//        }
-//        catch (let error)
-//        {
-//            print("• Failed to create an AsyncDandelionConnection connection: \(error)")
-//            XCTFail()
-//            return
-//        }
-//    }
-    
-//    func testConnectToDandelionServerSecond() async throws
-//    {
-//        guard let keychain = Keychain(baseDirectory: testKeychainURL) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        let publicKey = privateSigningKey.publicKey
-//        
-//        print("• Initializing nametag. Public key is \(publicKey.data!.count) bytes, expected public key size is 65 bytes.") //Nametag.expectedPublicKeySize
-//        
-//        guard let _ = Nametag(keychain: keychain) else
-//        {
-//            XCTFail()
-//            return
-//        }
-//        
-//        print("• created a Nametag instance.")
-//        
-//        do
-//        {
-//            let connection = try await AsyncDandelionClientConnection(keychain, serverIP, serverPort, testLog, verbose: true)
-//            
-//            print("• Created an AsyncDandelionConnection connection.")
-//            
-//            try await connection.write(message2.data)
-//            print("• Wrote some data to the AsyncDandelionConnection connection.")
-//            
-//            let readResult = try await connection.readSize(16)
-//            
-//            print("• Read from the nametag connection: \(readResult.string)")
-//            XCTAssertEqual(message1 + message2, readResult.string)
-//        }
-//        catch (let error)
-//        {
-//            print("• Failed to create a nametag connection: \(error)")
-//            XCTFail()
-//            return
-//        }
-//    }
 
 }

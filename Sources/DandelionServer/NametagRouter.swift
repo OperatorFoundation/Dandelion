@@ -82,7 +82,7 @@ public actor NametagRouter
         switch state 
         {
             case .closing:
-                print("⚘ Client connected while in the router closing state, connections cannot be accepted. This is an error, closing the client connection.")
+                print("⚘ 🚫 Client connected while in the router closing state, connections cannot be accepted. This is an error, closing the client connection.")
                 self.state = .closing
                 try await connection.connection.network.close()
                 throw NametagRouterError.connectionWhileClosing
