@@ -43,7 +43,6 @@ public actor NametagRouter
         self.controller = controller
         self.clientConnection = transportConnection
         self.targetConnection = targetConnection
-
         self.cleaner = NametagRouterCleanup(router: self)
         
         print("⚘ Enqueuing a transport connection in the clientsForClientPump.")
@@ -99,8 +98,7 @@ public actor NametagRouter
                 self.connectionReaper = nil
                 
             case .active:
-                print("⚘ 🚫 Client connected while in the active 🟢 state. This is an error, closing the client connection and setting this router state to closing.")
-                self.state = .closing
+                print("⚘ 🚫 Client connected while in the active 🟢 state. This is an error, closing the new client connection and setting this router state to closing.")
                 try await connection.connection.network.close()
                 throw NametagRouterError.connectionWhileActive
         }
