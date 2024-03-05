@@ -80,7 +80,7 @@ The easiest way to run a Dandelion server is with the Shapeshifter Dispatcher fo
 
 Clone ShapeshifterDispatcherSwift: https://github.com/OperatorFoundation/ShapeshifterDispatcherSwift.git
 
-Generating Configuration files:
+### Generating Configuration files
 
 The ShapeshifterDispatcherSwift project has an executable target called ShapeshiterConfigs. Use this to create configuration files for the server and the client before running the server. To do this, run the following command, providing the full path to the directory where you would like the files to be saved: 
 
@@ -88,7 +88,7 @@ The ShapeshifterDispatcherSwift project has an executable target called Shapeshi
 ShapeshifterConfigs dandelion --host <serverIP> --port <serverPort> --directory <pathToSaveDirectory>
 ```
 
-Running a Dandelion Server:
+### Running a Dandelion Server
 
 The following command is an example of how you would use Dispatcher to run a Dandelion server pointed at a specific target server:
 
