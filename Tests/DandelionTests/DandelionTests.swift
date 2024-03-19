@@ -15,10 +15,12 @@ import TransmissionNametag
 final class DandelionTests: XCTestCase 
 {
     let serverIP = ""
-    let serverPort = 5771
+    let serverPort = 1234
     let keychainLabel = "Nametag"
     let testKeychainURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".keychainTest")
     let shadowConfigURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("ShadowClientConfig.json")
+    let shadowToDandelionConfigURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("ShadowToDandelionClientConfig3.json")
+    let shadowToDandelionConfigURLSecond = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("ShadowToDandelionClientConfig4.json")
     let testLog = Logger(label: "Dandelion Logger")
     let message1 = "Hello"
     let message2 = " Dandelion."
@@ -165,7 +167,7 @@ final class DandelionTests: XCTestCase
         do
         {
             // Connect
-            let dandelionShadowConnection = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            let dandelionShadowConnection = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowToDandelionConfigURL)
             print("• Created a Dandelion Shadow connection.")
             
             // Write first message
@@ -177,12 +179,12 @@ final class DandelionTests: XCTestCase
             try await Task.sleep(for: .seconds(5))
             
             // Connect again
-            let dandelionShadowConnection2 = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowConfigURL)
+            let dandelionShadowConnection2 = try await dandelionClient.connectShadowToDandelionServer(shadowConfigURL: shadowToDandelionConfigURLSecond)
             print("• Created a second Dandelion Shadow connection.")
             
             // Write second message
             try await dandelionShadowConnection2.write(message2.data)
-            print("• Wrote smore data to the Dandelion Shadow connection.")
+            print("• Wrote some more data to the Dandelion Shadow connection.")
               
             // Read
             let readResult = try await dandelionShadowConnection2.readSize(16)
