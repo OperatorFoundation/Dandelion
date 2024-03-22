@@ -33,7 +33,7 @@ public class DandelionRoutingController
         {
             do
             {
-                let transportConnection = try AsyncAwaitThrowingSynchronizer<AsyncConnection>.sync
+                let transportConnection = try AsyncAwaitThrowingSynchronizer<AsyncNametagServerConnection>.sync
                 {
                     let connection = try await dandelionListener.accept()
                     print("⚘ Accepted a connection.")
